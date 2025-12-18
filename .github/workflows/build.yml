@@ -90,11 +90,11 @@ jobs:
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
 
-    - name: Upload Build Artifacts
+    - name: Upload Build artifacts
       uses: actions/upload-artifact@v4
       with:
         name: artifacts-${{ runner.os }}-${{ matrix.cpp_compiler }}
-        path: ${{ github.workspace }}/bin
+        path: ${{ steps.strings.outputs.build-output-dir }}/${{ matrix.build_type }}
 
   test:
     runs-on: ${{ matrix.os }}
