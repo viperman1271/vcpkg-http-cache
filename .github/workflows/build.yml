@@ -94,7 +94,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: artifacts-${{ runner.os }}-${{ matrix.cpp_compiler }}
-        path: ${{ github.workspace }}/bin
+        path: ${{ steps.strings.outputs.build-output-dir }}
 
   test:
     runs-on: ${{ matrix.os }}
