@@ -4,7 +4,7 @@
     "dependencies": [
         "catch2",
         "drogon",
-        "toml11",
-        "jsoncpp"
+        "nlohmann-json",
+        "toml11"
     ]
 }

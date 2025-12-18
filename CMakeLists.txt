@@ -10,7 +10,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Find required packages
 find_package(Drogon CONFIG REQUIRED)
-find_package(jsoncpp CONFIG REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
 find_package(toml11 CONFIG REQUIRED)
 
 source_group("" FILES
@@ -35,6 +35,6 @@ target_include_directories(vcpkg-binary-cache-server PRIVATE
 
 target_link_libraries(vcpkg-binary-cache-server PUBLIC
     Drogon::Drogon
-    jsoncpp_lib
+    nlohmann_json::nlohmann_json
     toml11::toml11
 )
