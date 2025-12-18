@@ -9,7 +9,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Find required packages
+find_package(CLI11 CONFIG REQUIRED)
 find_package(Drogon CONFIG REQUIRED)
+find_package(fmt CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(toml11 CONFIG REQUIRED)
 
@@ -34,7 +36,9 @@ target_include_directories(vcpkg-binary-cache-server PRIVATE
 )
 
 target_link_libraries(vcpkg-binary-cache-server PUBLIC
+    CLI11::CLI11
     Drogon::Drogon
+    fmt::fmt
     nlohmann_json::nlohmann_json
     toml11::toml11
 )

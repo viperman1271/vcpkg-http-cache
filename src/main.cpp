@@ -1,6 +1,8 @@
-#include "options.hpp"
-#include "server.hpp"
+#include <options.hpp>
+#include <server.hpp>
 
+#include <CLI/CLI.hpp>
+#include <fmt/core.h>
 #include <drogon/drogon.h>
 
 #include <fstream>
@@ -9,13 +11,30 @@
 
 int main(int argc, char* argv[]) 
 {
-    Options options;
-    options.load();
-
     std::cout << "===========================================" << std::endl
-              << "vcpkg Binary Cache Server v1.0.0" << std::endl
-              << "===========================================" << std::endl
-              << "Configuration:" << std::endl
+                << "vcpkg Binary Cache Server v1.0.0" << std::endl
+                << "===========================================" << std::endl;
+    Options options;
+
+    CLI::App app{ "vcpkg-binary-cache-server" };
+#ifdef _WIN32
+    app.allow_windows_style_options();
+#endif // _WIN32
+
+    app.add_flag("-c,--config", options.configFile, fmt::format("The config file to load (default: {})", options.configFile));
+
+    try
+    {
+        app.parse(argc, argv);
+    }
+    catch (const CLI::ParseError& e)
+    {
+        return app.exit(e);
+    }
+
+    options.load();
+    
+    std::cout << "Configuration:" << std::endl
               << "  Cache Directory: " << options.cache.directory << "" << std::endl
               << "  Host:            " << options.web.bindAddress << "" << std::endl
               << "  Port:            " << options.web.port << "" << std::endl
