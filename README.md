@@ -1,6 +1,12 @@
 # vcpkg Binary Cache Server
 
+[![License: GPLv3](https://img.shields.io/badge/License-GPLv3-blue.svg)](./LICENSE)
+
 A high-performance HTTP web server for binary caching with vcpkg, built with C++ and Drogon framework.
+
+## License
+
+This project is licensed under the GNU General Public License v3.0.
 
 ## Features
 
@@ -247,5 +253,4 @@ Contributions are welcome! Please ensure:
 These are automatically managed by vcpkg through the `vcpkg.json` manifest file.
 
 ## Additional Documentation
-
-https://learn.microsoft.com/en-us/vcpkg/users/binarycaching
+- [vcpkg Binary Caching](https://learn.microsoft.com/en-us/vcpkg/users/binarycaching)
