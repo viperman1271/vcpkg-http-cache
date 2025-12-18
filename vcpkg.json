@@ -1,9 +1,10 @@
 {
   "name": "vcpkg-binary-cache-server",
   "version": "1.0.0",
-  "dependencies": [
-    "catch2",
-    "drogon",
-    "jsoncpp"
-  ]
+    "dependencies": [
+        "catch2",
+        "drogon",
+        "toml11",
+        "jsoncpp"
+    ]
 }
