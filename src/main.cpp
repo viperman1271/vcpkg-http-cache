@@ -11,47 +11,32 @@
 
 int main(int argc, char* argv[]) 
 {
-    std::cout << "===========================================" << std::endl
-                << "vcpkg Binary Cache Server v1.0.0" << std::endl
-                << "===========================================" << std::endl;
-    Options options;
-
     CLI::App app{ "vcpkg-binary-cache-server" };
-#ifdef _WIN32
-    app.allow_windows_style_options();
-#endif // _WIN32
-
-    app.add_flag("-c,--config", options.configFile, fmt::format("The config file to load (default: {})", options.configFile));
-
-    try
-    {
-        app.parse(argc, argv);
-    }
-    catch (const CLI::ParseError& e)
-    {
-        return app.exit(e);
-    }
-
-    options.load();
-    
-    std::cout << "Configuration:" << std::endl
-              << "  Cache Directory: " << options.cache.directory << "" << std::endl
-              << "  Host:            " << options.web.bindAddress << "" << std::endl
-              << "  Port:            " << options.web.port << "" << std::endl
-              << "  Threads:         " << options.web.threads << "" << std::endl
-              << "===========================================" << std::endl << std::endl;
-
-    try
-    {
-    }
-    catch (const std::exception& e)
-    {
-        std::cerr << "Error: " << e.what() << std::endl;
-        return 1;
-    }
 
     try 
     {
+        std::cout << "===========================================" << std::endl
+                    << "vcpkg Binary Cache Server v1.0.0" << std::endl
+                    << "===========================================" << std::endl;
+        Options options;
+
+#ifdef _WIN32
+        app.allow_windows_style_options();
+#endif // _WIN32
+
+        app.add_flag("-c,--config", options.configFile, fmt::format("The config file to load (default: {})", options.configFile));
+
+        app.parse(argc, argv);
+
+        options.load();
+
+        std::cout << "Configuration:" << std::endl
+            << "  Cache Directory: " << options.cache.directory << "" << std::endl
+            << "  Host:            " << options.web.bindAddress << "" << std::endl
+            << "  Port:            " << options.web.port << "" << std::endl
+            << "  Threads:         " << options.web.threads << "" << std::endl
+            << "===========================================" << std::endl << std::endl;
+
         // Cache directory
         {
             const std::filesystem::path cachePath(options.cache.directory);
@@ -105,10 +90,10 @@ int main(int argc, char* argv[])
 #ifndef _WIN32
             .enableRunAsDaemon()
 #endif // _WIN32
-            .setMaxConnectionNum(100000)
+            .setMaxConnectionNum(options.web.maxConnectionNum)
             .setMaxConnectionNumPerIP(0)
             .setUploadPath(options.upload.directory)
-            .setClientMaxBodySize(1024 * 1024 * 1024); // 1GB max upload
+            .setClientMaxBodySize(options.web.maxUploadSize);
 
         std::cout << "Starting server on " << options.web.bindAddress << ":" << options.web.port << std::endl;
         std::cout << "Press Ctrl+C to stop the server" << std::endl << std::endl;
@@ -121,6 +106,10 @@ int main(int argc, char* argv[])
         // Run the server
         drogon::app().run();
     } 
+    catch (const CLI::ParseError& e)
+    {
+        return app.exit(e);
+    }
     catch (const std::exception& e) 
     {
         std::cerr << "Error: " << e.what() << std::endl;
