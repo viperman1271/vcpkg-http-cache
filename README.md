@@ -1,6 +1,7 @@
 # vcpkg Binary Cache Server
 
 [![License: GPLv3](https://img.shields.io/badge/License-GPLv3-blue.svg)](./LICENSE)
+[![Build](https://github.com/viperman1271/vcpkg-http-cache/actions/workflows/build.yml/badge.svg)](https://github.com/viperman1271/vcpkg-http-cache/actions/workflows/build.yml)
 
 A high-performance HTTP web server for binary caching with vcpkg, built with C++ and Drogon framework.
 
