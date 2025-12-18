@@ -1,6 +1,7 @@
 {
-  "name": "vcpkg-binary-cache-server",
-  "version": "1.0.0",
+    "name": "vcpkg-binary-cache-server",
+    "license": "GPL-3.0-or-later",
+    "version": "1.0.0",
     "dependencies": [
         "catch2",
         "cli11",
