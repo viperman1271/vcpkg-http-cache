@@ -1,0 +1,86 @@
+# =====================
+# CMake
+# =====================
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+CMakeScripts/
+Testing/
+*.cmake
+build/
+Debug/
+Release/
+RelWithDebInfo/
+MinSizeRel/
+*.dir/
+
+# =====================
+# vcpkg
+# =====================
+/vcpkg_installed/
+/vcpkg/buildtrees/
+/vcpkg/downloads/
+/vcpkg/packages/
+/vcpkg/triplets/
+/vcpkg/scripts/
+
+# =====================
+# Visual Studio
+# =====================
+.vs/
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.suo
+*.user
+*.userosscache
+*.sln
+*.sln.docstates
+*.ncb
+*.opensdf
+*.sdf
+*.ipch
+*.VC.db
+*.VC.VC.opendb
+Debug/
+Release/
+x64/
+x86/
+
+# =====================
+# VS Code
+# =====================
+.vscode/
+*.code-workspace
+.history/
+
+# =====================
+# General C++
+# =====================
+*.o
+*.obj
+*.lo
+*.la
+*.al
+*.lib
+*.a
+*.so
+*.dll
+*.dylib
+*.exe
+*.out
+*.app
+*.pch
+*.pdb
+*.idb
+*.class
+*.log
+*.tmp
+*.temp
+
+# =====================
+# OS-specific (optional)
+# =====================
+.DS_Store
+Thumbs.db

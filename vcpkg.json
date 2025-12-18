@@ -1,0 +1,10 @@
+{
+  "name": "vcpkg-binary-cache-server",
+  "version": "1.0.0",
+    "dependencies": [
+        "catch2",
+        "drogon",
+        "nlohmann-json",
+        "toml11"
+    ]
+}
