@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
             if (!std::filesystem::exists(cachePath))
             {
                 std::filesystem::create_directories(cachePath);
-                std::cout << "Creating " << cachePath << std::endl;
+                std::cout << "Creating " << cachePath.string() << std::endl;
             }
         }
 
@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 
             if (!std::filesystem::exists(logPath))
             {
-                std::cout << "Creating " << logPath << std::endl;
+                std::cout << "Creating " << logPath.string() << std::endl;
                 std::ofstream logFile(logPath);
                 if (logFile)
                 {
@@ -69,12 +69,12 @@ int main(int argc, char* argv[])
             const std::filesystem::path uploadPath(options.upload.directory);
             if (!std::filesystem::exists(uploadPath))
             {
-                std::cout << "Creating " << uploadPath << std::endl;
+                std::cout << "Creating " << uploadPath.string() << std::endl;
                 std::filesystem::create_directories(uploadPath);
             }
         }
 
-        std::shared_ptr<vcpkg::BinaryCacheServer> server = std::make_shared<vcpkg::BinaryCacheServer>(options.cache.directory);
+        std::shared_ptr<BinaryCacheServer> server = std::make_shared<BinaryCacheServer>(options.cache.directory);
         drogon::app().registerController(server);
 
         // Configure Drogon
@@ -88,13 +88,15 @@ int main(int argc, char* argv[])
 #endif // _WIN32
             .setMaxConnectionNum(100000)
             .setMaxConnectionNumPerIP(0)
-            //.loadConfigFile("") // Empty to use programmatic config
             .setUploadPath(options.upload.directory)
             .setClientMaxBodySize(1024 * 1024 * 1024); // 1GB max upload
 
         std::cout << "Starting server on " << options.web.bindAddress << ":" << options.web.port << std::endl;
         std::cout << "Press Ctrl+C to stop the server" << std::endl << std::endl;
         std::cout << "API Endpoints:" << std::endl;
+        std::cout << "  HEAD http://" << options.web.bindAddress << ":" << options.web.port << "/{triplet}/{name}/{version}/{sha}  - Check package" << std::endl;
+        std::cout << "  GET  http://" << options.web.bindAddress << ":" << options.web.port << "/{triplet}/{name}/{version}/{sha}  - Download package" << std::endl;
+        std::cout << "  PUT  http://" << options.web.bindAddress << ":" << options.web.port << "/{triplet}/{name}/{version}/{sha}  - Upload package" << std::endl;
         std::cout << "  GET  http://" << options.web.bindAddress << ":" << options.web.port << "/status  - Server status" << std::endl << std::endl;
 
         // Run the server
