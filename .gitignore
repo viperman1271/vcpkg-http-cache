@@ -8,7 +8,7 @@ Makefile
 CMakeScripts/
 Testing/
 *.cmake
-build/
+build*/
 Debug/
 Release/
 RelWithDebInfo/

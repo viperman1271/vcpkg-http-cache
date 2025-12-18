@@ -47,9 +47,9 @@ git clone https://github.com/viperman1271/vcpkg-http-cache
 cd vcpkg-binary-cache-server
 
 # Configure with vcpkg toolchain
-cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%/scripts/buildsystems/vcpkg.cmake -S . -G "Visual Studio 17 2022" # Windows
+cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%/scripts/buildsystems/vcpkg.cmake -S . -B build -G "Visual Studio 17 2022" # Windows
 # or
-cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake -S . # Linux/macOS
+cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake -S . -B build # Linux/macOS
 
 # Build
 cmake --build build --config Debug -j4
@@ -60,11 +60,11 @@ cmake --build build --config Debug -j4
 ### Basic Usage
 
 ```bash
-./build/bin/vcpkg-binary-cache-server # Linux
+./build/Release/vcpkg-binary-cache-server # Linux
 
 # -OR-
 
-.\build\bin\vcpkg-binary-cache-server.exe # Windows
+.\build\Release\vcpkg-binary-cache-server.exe # Windows
 ```
 
 This starts the server on `0.0.0.0:80` with cache directory `/var/vcpkg.cache/cache` (Linux) or `C:\.vcpkg.cache\cache` (Windows).
