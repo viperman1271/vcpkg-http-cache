@@ -3,17 +3,17 @@
 #include <string>
 #include <vector>
 
-struct options_t final
+struct Options final
 {
 public:
-    options_t();
-    ~options_t() = default;
+    Options();
+    ~Options() = default;
 
     std::string configFile;
 
-    struct web_properties
+    struct WebProperties
     {
-        web_properties();
+        WebProperties();
 
         std::string bindAddress;
         uint16_t port;
@@ -22,16 +22,16 @@ public:
         std::string logPath;
     } web;
 
-    struct cache_properties
+    struct CacheProperties
     {
-        cache_properties();
+        CacheProperties();
 
         std::string directory;
     } cache;
 
-    struct upload_properties
+    struct UploadProperties
     {
-        upload_properties();
+        UploadProperties();
 
         std::string directory;
     } upload;

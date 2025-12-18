@@ -48,7 +48,7 @@ bool get_toml_value(toml::table& table, const std::string& variable, T& value)
     return false;
 }
 
-options_t::options_t()
+Options::Options()
 #ifdef _WIN32
     : configFile{ "C:\\.vcpkg.cache\\config.toml" }
 #else
@@ -57,7 +57,7 @@ options_t::options_t()
 {
 }
 
-void options_t::save()
+void Options::save()
 {
     toml::value config;
 
@@ -90,7 +90,7 @@ void options_t::save()
     }
 }
 
-void options_t::load()
+void Options::load()
 {
     if (!std::filesystem::exists(configFile))
     {
@@ -123,7 +123,7 @@ void options_t::load()
     }
 }
 
-options_t::web_properties::web_properties()
+Options::WebProperties::WebProperties()
     : bindAddress("0.0.0.0")
     , port(80)
     , threads(4)
@@ -135,7 +135,7 @@ options_t::web_properties::web_properties()
 {
 }
 
-options_t::cache_properties::cache_properties()
+Options::CacheProperties::CacheProperties()
 #ifdef _WIN32
     : directory("C:\\.vcpkg.cache\\cache")
 #else
@@ -144,7 +144,7 @@ options_t::cache_properties::cache_properties()
 {
 }
 
-options_t::upload_properties::upload_properties()
+Options::UploadProperties::UploadProperties()
 #ifdef _WIN32
     : directory("C:\\.vcpkg.cache\\upload")
 #else

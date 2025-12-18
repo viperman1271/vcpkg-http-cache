@@ -9,7 +9,7 @@
 
 int main(int argc, char* argv[]) 
 {
-    options_t options;
+    Options options;
     options.load();
 
     std::cout << "===========================================" << std::endl
