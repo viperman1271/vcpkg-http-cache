@@ -65,7 +65,9 @@ void Options::save()
     config["web"]["port"] = web.port;
     config["web"]["threads"] = web.threads;
     config["web"]["logPath"] = web.logPath;
-    
+    config["web"]["maxConnectionNum"] = web.maxConnectionNum;
+    config["web"]["maxUploadSize"] = web.maxUploadSize;
+
     config["cache"]["path"] = cache.directory;
 
     config["upload"]["path"] = upload.directory;
@@ -108,6 +110,8 @@ void Options::load()
         get_toml_value(webTable, "port", web.port);
         get_toml_value(webTable, "threads", web.threads);
         get_toml_value(webTable, "logPath", web.logPath);
+        get_toml_value(webTable, "maxConnectionNum", web.maxConnectionNum);
+        get_toml_value(webTable, "maxUploadSize", web.maxUploadSize);
     }
 
     if (config.contains("cache") && config.at("cache").is<toml::table>())
@@ -132,6 +136,8 @@ Options::WebProperties::WebProperties()
 #else
     , logPath("/var/vcpkg.cache/log.txt")
 #endif // _WIN32
+    , maxConnectionNum(100000)
+    , maxUploadSize(1024 * 1024 * 1024) // 1GB
 {
 }
 

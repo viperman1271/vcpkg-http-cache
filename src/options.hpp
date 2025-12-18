@@ -18,8 +18,9 @@ public:
         std::string bindAddress;
         uint16_t port;
         uint16_t threads;
-
         std::string logPath;
+        uint32_t maxConnectionNum;
+        uint32_t maxUploadSize;
     } web;
 
     struct CacheProperties
