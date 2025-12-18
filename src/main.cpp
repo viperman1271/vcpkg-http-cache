@@ -24,7 +24,8 @@ int main(int argc, char* argv[])
         app.allow_windows_style_options();
 #endif // _WIN32
 
-        app.add_flag("-c,--config", options.configFile, fmt::format("The config file to load (default: {})", options.configFile));
+        app.add_option("-c,--config", options.configFile, fmt::format("The config file to load (default: {})", options.configFile));
+        app.add_flag("-s,--save", options.saveConfigFile, "Force save the configuration file (if it exists or not). Default: false");
 
         app.parse(argc, argv);
 

@@ -1,5 +1,6 @@
 #include "options.hpp"
 
+#include <fmt/core.h>
 #include <toml.hpp>
 
 #include <iostream>
@@ -48,12 +49,15 @@ bool get_toml_value(toml::table& table, const std::string& variable, T& value)
     return false;
 }
 
-Options::Options()
 #ifdef _WIN32
-    : configFile{ "C:\\.vcpkg.cache\\config.toml" }
+static const std::string DefaultConfigFile{ "C:\\.vcpkg.cache\\config.toml" };
 #else
-    : configFile{ "/etc/vcpkg.cache/config.toml" }
+static const std::string DefaultConfigFile{ "/etc/vcpkg.cache/config.toml" };
 #endif
+
+Options::Options()
+    : configFile{ DefaultConfigFile }
+    , saveConfigFile(false)
 {
 }
 
@@ -96,9 +100,15 @@ void Options::load()
 {
     if (!std::filesystem::exists(configFile))
     {
-        std::cerr << "File \"" << configFile << "\" does not exist" << std::endl;
-        save();
-        return;
+        if (saveConfigFile)
+        {
+            save();
+            return;
+        }
+        else if(configFile != DefaultConfigFile)
+        {
+            throw std::runtime_error(fmt::format("File \"{}\" does not exist.", configFile));
+        }
     }
 
     toml::value config = toml::parse(configFile);
@@ -124,6 +134,11 @@ void Options::load()
     {
         toml::table& uploadTable = toml::find<toml::table>(config, "upload");
         get_toml_value(uploadTable, "path", upload.directory);
+    }
+
+    if (saveConfigFile)
+    {
+        save();
     }
 }
 

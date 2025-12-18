@@ -10,6 +10,7 @@ public:
     ~Options() = default;
 
     std::string configFile;
+    bool saveConfigFile;
 
     struct WebProperties
     {
