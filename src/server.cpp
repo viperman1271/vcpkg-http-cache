@@ -278,7 +278,7 @@ nlohmann::json BinaryCacheServer::GetCacheStats() const
     
     stats["package_count"] = packageCount;
     stats["total_size_bytes"] = totalSize;
-    stats["total_size_mb"] = static_cast<double>((totalSize) / (1024.0 * 1024.0));
+    stats["total_size_mb"] = std::round(static_cast<double>((totalSize) / (1024.0 * 1024.0)) * 100.0) / 100.0;
     
     stats["statistics"]["total_requests"] = m_requestCount.load();
     stats["statistics"]["uploads"] = m_uploadCount.load();

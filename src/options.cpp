@@ -1,5 +1,6 @@
 #include "options.hpp"
 
+#include <fmt/core.h>
 #include <toml.hpp>
 
 #include <iostream>
@@ -48,12 +49,15 @@ bool get_toml_value(toml::table& table, const std::string& variable, T& value)
     return false;
 }
 
-Options::Options()
 #ifdef _WIN32
-    : configFile{ "C:\\.vcpkg.cache\\config.toml" }
+static const std::string DefaultConfigFile{ "C:\\.vcpkg.cache\\config.toml" };
 #else
-    : configFile{ "/etc/vcpkg.cache/config.toml" }
+static const std::string DefaultConfigFile{ "/etc/vcpkg.cache/config.toml" };
 #endif
+
+Options::Options()
+    : configFile{ DefaultConfigFile }
+    , saveConfigFile(false)
 {
 }
 
@@ -65,7 +69,9 @@ void Options::save()
     config["web"]["port"] = web.port;
     config["web"]["threads"] = web.threads;
     config["web"]["logPath"] = web.logPath;
-    
+    config["web"]["maxConnectionNum"] = web.maxConnectionNum;
+    config["web"]["maxUploadSize"] = web.maxUploadSize;
+
     config["cache"]["path"] = cache.directory;
 
     config["upload"]["path"] = upload.directory;
@@ -94,9 +100,15 @@ void Options::load()
 {
     if (!std::filesystem::exists(configFile))
     {
-        std::cerr << "File \"" << configFile << "\" does not exist" << std::endl;
-        save();
-        return;
+        if (saveConfigFile)
+        {
+            save();
+            return;
+        }
+        else if(configFile != DefaultConfigFile)
+        {
+            throw std::runtime_error(fmt::format("File \"{}\" does not exist.", configFile));
+        }
     }
 
     toml::value config = toml::parse(configFile);
@@ -108,6 +120,8 @@ void Options::load()
         get_toml_value(webTable, "port", web.port);
         get_toml_value(webTable, "threads", web.threads);
         get_toml_value(webTable, "logPath", web.logPath);
+        get_toml_value(webTable, "maxConnectionNum", web.maxConnectionNum);
+        get_toml_value(webTable, "maxUploadSize", web.maxUploadSize);
     }
 
     if (config.contains("cache") && config.at("cache").is<toml::table>())
@@ -121,6 +135,11 @@ void Options::load()
         toml::table& uploadTable = toml::find<toml::table>(config, "upload");
         get_toml_value(uploadTable, "path", upload.directory);
     }
+
+    if (saveConfigFile)
+    {
+        save();
+    }
 }
 
 Options::WebProperties::WebProperties()
@@ -132,6 +151,8 @@ Options::WebProperties::WebProperties()
 #else
     , logPath("/var/vcpkg.cache/log.txt")
 #endif // _WIN32
+    , maxConnectionNum(100000)
+    , maxUploadSize(1024 * 1024 * 1024) // 1GB
 {
 }
 

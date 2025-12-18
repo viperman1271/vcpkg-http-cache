@@ -14,7 +14,7 @@ A high-performance HTTP web server for binary caching with vcpkg, built with C++
 
 ## Prerequisites
 
-- C++17 compatible compiler (GCC 8+, Clang 7+, MSVC 2019+)
+- C++20 compatible compiler (GCC 8+, Clang 7+, MSVC 2022+)
 - CMake 3.15 or higher
 - vcpkg package manager
 
@@ -234,13 +234,18 @@ This project is provided as-is for use with vcpkg binary caching.
 ## Contributing
 
 Contributions are welcome! Please ensure:
-- Code follows C++17 standards
+- Code follows C++20 standards
 - All endpoints are tested
 - Documentation is updated
 
 ## Dependencies
-
+- **CLI11**: Command line interface
 - **Drogon**: High-performance HTTP framework
-- **jsoncpp**: JSON parsing and generation
+- **nlohmann::json**: JSON parsing and generation
+- **toml11**: TOML parsing and generation
 
 These are automatically managed by vcpkg through the `vcpkg.json` manifest file.
+
+## Additional Documentation
+
+https://learn.microsoft.com/en-us/vcpkg/users/binarycaching
