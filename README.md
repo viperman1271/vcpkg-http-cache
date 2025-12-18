@@ -46,8 +46,6 @@ cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/builds
 
 # Build
 cmake --build build --config Debug -j4
-
-# The executable will be in build/bin/
 ```
 
 ## Usage
@@ -63,40 +61,7 @@ This starts the server on `0.0.0.0:80` with cache directory `./cache`.
 ### Command-Line Options
 
 ```bash
-./vcpkg-binary-cache-server [OPTIONS]
-
-Options:
-  --cache-dir <path>   Directory to store cached packages (default: ./cache)
-  --host <address>     Host address to bind to (default: 0.0.0.0)
-  --port <number>      Port to listen on (default: 80)
-  --threads <number>   Number of worker threads (default: 4)
-  --help, -h           Show help message
-```
-
-### Environment Variables
-
-You can also configure the server using environment variables:
-
-```bash
-export CACHE_DIR=/var/cache/vcpkg
-export HOST=127.0.0.1
-export PORT=9000
-export THREADS=8
-
 ./vcpkg-binary-cache-server
-```
-
-### Examples
-
-```bash
-# Custom port and cache directory
-./vcpkg-binary-cache-server --port 9000 --cache-dir /var/cache/vcpkg
-
-# Local-only server with more threads
-./vcpkg-binary-cache-server --host 127.0.0.1 --threads 8
-
-# Production configuration
-./vcpkg-binary-cache-server --host 0.0.0.0 --port 8080 --cache-dir /data/cache --threads 16
 ```
 
 ## API Endpoints
@@ -104,40 +69,40 @@ export THREADS=8
 ### Check if Package Exists
 
 ```http
-HEAD /{hash}
+HEAD /{triplet}/{name}/{version}/{sha}
 ```
 
 Returns `200 OK` if package exists, `404 Not Found` if it doesn't.
 
 **Example:**
 ```bash
-curl -I http://localhost:8080/abc123def456
+curl -I http://localhost/x64-windows/curl/8.17.0/66672cc2e2ace73f33808e213287489112b3a9f1667f0f78b8af05003ebc262f
 ```
 
 ### Download Package
 
 ```http
-GET /{hash}
+GET /{triplet}/{name}/{version}/{sha}
 ```
 
 Downloads the binary package with the specified hash.
 
 **Example:**
 ```bash
-curl -O http://localhost:8080/abc123def456
+curl -O http://localhost/x64-windows/curl/8.17.0/66672cc2e2ace73f33808e213287489112b3a9f1667f0f78b8af05003ebc262f
 ```
 
 ### Upload Package
 
 ```http
-PUT /{hash}
+PUT /{triplet}/{name}/{version}/{sha}
 ```
 
 Uploads a binary package with the specified hash.
 
 **Example:**
 ```bash
-curl -X PUT --data-binary @package.zip http://localhost:8080/abc123def456
+curl -X PUT --data-binary @package.zip http://localhost/x64-windows/curl/8.17.0/66672cc2e2ace73f33808e213287489112b3a9f1667f0f78b8af05003ebc262f
 ```
 
 ### Server Status
@@ -150,7 +115,7 @@ Returns server statistics and cache information.
 
 **Example:**
 ```bash
-curl http://localhost:8080/status
+curl http://localhost/status
 ```
 
 **Response:**
@@ -176,13 +141,13 @@ To use this server as a binary cache for vcpkg, configure vcpkg with:
 
 ```bash
 # Set binary cache to use your server
-vcpkg install <package> --binarysource=clear,http,http://localhost:8080/{name}/{version}/{hash}.zip,readwrite
+vcpkg install <package> --binarysource=http,http://localhost/{triplet}/{name}/{version}/{sha},readwrite
 ```
 
 Or set it in your environment:
 
 ```bash
-export VCPKG_BINARY_SOURCES="http,http://localhost:8080/{name}/{version}/{hash}.zip,readwrite"
+export VCPKG_BINARY_SOURCES="http,http://localhost/{triplet}/{name}/{version}/{sha},readwrite" # Linux
 ```
 
 ## Project Structure
