@@ -24,6 +24,8 @@ source_group("" FILES
     src/main.cpp
     src/options.cpp
     src/options.hpp
+    src/persistence.cpp
+    src/persistence.hpp
     src/server.cpp
     src/server.hpp
 )
@@ -32,6 +34,8 @@ add_executable(vcpkg-binary-cache-server
     src/main.cpp
     src/options.cpp
     src/options.hpp
+    src/persistence.cpp
+    src/persistence.hpp
     src/server.cpp
     src/server.hpp
 )

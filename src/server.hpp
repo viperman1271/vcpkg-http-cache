@@ -1,5 +1,7 @@
 #pragma once
 
+#include <persistence.hpp>
+
 #include <drogon/HttpController.h>
 #include <drogon/HttpTypes.h>
 #include <nlohmann/json.hpp>
@@ -33,7 +35,7 @@ public:
      * @brief Constructor
      * @param cacheDir Directory to store cached binary packages
      */
-    explicit BinaryCacheServer(const std::string& cacheDir = "./cache");
+    explicit BinaryCacheServer(const std::string& cacheDir, const std::string& persistenceFile);
 
     /**
      * @brief Check if a package exists (HEAD request)
@@ -85,7 +87,7 @@ public:
      * @brief Get the cache directory
      * @return Cache directory path
      */
-    std::string getCacheDirectory() const { return m_cacheDir.string(); }
+    std::string getCacheDirectory() const { return m_CacheDir.string(); }
 
 private:
     /**
@@ -119,8 +121,7 @@ private:
     nlohmann::json GetCacheStats() const;
 
 private:
-    std::filesystem::path m_cacheDir;
-    mutable std::atomic<uint64_t> m_requestCount{0};
-    mutable std::atomic<uint64_t> m_uploadCount{0};
-    mutable std::atomic<uint64_t> m_downloadCount{0};
+    std::filesystem::path m_CacheDir;
+
+    mutable PersistenceInfo m_PersistenceInfo;
 };

@@ -123,7 +123,7 @@ int main(int argc, char* argv[])
             return 0;
         }
         
-        std::shared_ptr<BinaryCacheServer> server = std::make_shared<BinaryCacheServer>(options.cache.directory);
+        std::shared_ptr<BinaryCacheServer> server = std::make_shared<BinaryCacheServer>(options.cache.directory, options.persistenceFile);
         drogon::app().registerController(server);
 
         // Configure Drogon
