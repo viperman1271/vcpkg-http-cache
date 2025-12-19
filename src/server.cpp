@@ -232,6 +232,29 @@ void BinaryCacheServer::SetCacheDirectory(const std::string& dir)
     }
 }
 
+void BinaryCacheServer::Kill(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback) const
+{
+    const auto& addr = req->getPeerAddr();
+    const auto ip = addr.toIp();
+
+    if (ip != "127.0.0.1" && ip != "::1")
+    {
+        auto resp = drogon::HttpResponse::newHttpResponse();
+        resp->setStatusCode(drogon::k403Forbidden);
+
+        callback(resp);
+    }
+    else
+    {
+        drogon::HttpResponsePtr resp = drogon::HttpResponse::newHttpResponse();
+        resp->setStatusCode(drogon::k200OK);
+
+        drogon::app().quit();
+
+        callback(resp);
+    }
+}
+
 std::filesystem::path BinaryCacheServer::GetPackagePath(const std::string& triplet, const std::string& name, const std::string& version, const std::string& sha) const 
 {
     // Store packages in the vcpkg structure: triplet/name/version/sha.zip

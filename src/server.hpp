@@ -23,6 +23,9 @@ public:
     
     // GET server status
     ADD_METHOD_TO(BinaryCacheServer::GetStatus, "/status", drogon::Get);
+
+    // GET method to terminate server via IPC
+    ADD_METHOD_TO(BinaryCacheServer::Kill, "/internal/kill", drogon::Get);
     
     METHOD_LIST_END
 
@@ -85,6 +88,13 @@ public:
     std::string getCacheDirectory() const { return m_cacheDir.string(); }
 
 private:
+    /**
+     * @brief Get server status
+     * @param req HTTP request
+     * @param callback Callback function
+     */
+    void Kill(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback) const;
+
     /**
      * @brief Get the file path for a given package
      * @param triplet Target triplet

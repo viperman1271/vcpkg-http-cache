@@ -12,6 +12,10 @@ public:
 
     std::string configFile;
     bool saveConfigFile;
+#ifndef _WIN32
+    bool runAsDaemon;
+#endif // _WIN32
+    bool sendTermSignal;
 
     struct WebProperties
     {

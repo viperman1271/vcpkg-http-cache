@@ -10,16 +10,15 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Find required packages
 find_package(CLI11 CONFIG REQUIRED)
+find_package(CURL REQUIRED)
 find_package(Drogon CONFIG REQUIRED)
 find_package(fmt CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(toml11 CONFIG REQUIRED)
 
-if(UNIX)
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE})
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE})
-    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE})
-endif()
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
 source_group("" FILES
     src/main.cpp
@@ -39,10 +38,12 @@ add_executable(vcpkg-binary-cache-server
 
 target_include_directories(vcpkg-binary-cache-server PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CURL_INCLUDE_DIRS}
 )
 
 target_link_libraries(vcpkg-binary-cache-server PUBLIC
     CLI11::CLI11
+    CURL::libcurl
     Drogon::Drogon
     fmt::fmt
     nlohmann_json::nlohmann_json

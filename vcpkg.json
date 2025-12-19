@@ -5,6 +5,7 @@
     "dependencies": [
         "catch2",
         "cli11",
+        "curl",
         "drogon",
         "fmt",
         "nlohmann-json",

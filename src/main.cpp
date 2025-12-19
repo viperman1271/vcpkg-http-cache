@@ -2,12 +2,20 @@
 #include <server.hpp>
 
 #include <CLI/CLI.hpp>
+#include <curl/curl.h>
 #include <fmt/core.h>
 #include <drogon/drogon.h>
 
 #include <fstream>
 #include <iostream>
 #include <cstdlib>
+
+// Callback function to handle response data
+static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) 
+{
+    ((std::string*)userp)->append((char*)contents, size * nmemb);
+    return size * nmemb;
+}
 
 int main(int argc, char* argv[]) 
 {
@@ -26,6 +34,10 @@ int main(int argc, char* argv[])
 
         app.add_option("-c,--config", options.configFile, fmt::format("The config file to load (default: {})", options.configFile));
         app.add_flag("-s,--save", options.saveConfigFile, "Force save the configuration file (if it exists or not). Default: false");
+#ifndef _WIN32
+        app.add_flag("-d,--daemon", options.runAsDaemon, "Forces the application to run as a daemon. Default: false");
+#endif // _WIN32
+        app.add_flag("-k,--kill", options.sendTermSignal, "Sends kill signal via IPC to other instances on the same machine. Default: false");
 
         app.parse(argc, argv);
 
@@ -79,6 +91,38 @@ int main(int argc, char* argv[])
             }
         }
 
+        if (options.sendTermSignal)
+        {
+            CURL* curl;
+            std::string readBuffer;
+
+            curl_global_init(CURL_GLOBAL_DEFAULT);
+            curl = curl_easy_init();
+
+            curl_easy_setopt(curl, CURLOPT_URL, "http://localhost:8888/internal/kill");
+            // Set the HTTP method to POST (you can change to GET if needed)
+            //curl_easy_setopt(curl, CURLOPT_GET, 1L);
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+
+            std::cout << "Sending kill signal to local instances." << std::endl;
+            const CURLcode res = curl_easy_perform(curl);
+
+            if (res != CURLE_OK)
+            {
+                std::cerr << "ERR: No local instances appear to be running." << std::endl;
+            }
+            else
+            {
+                long response_code;
+                curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
+            }
+
+            curl_easy_cleanup(curl);
+
+            return 0;
+        }
+        
         std::shared_ptr<BinaryCacheServer> server = std::make_shared<BinaryCacheServer>(options.cache.directory);
         drogon::app().registerController(server);
 
@@ -88,13 +132,19 @@ int main(int argc, char* argv[])
             .setLogLevel(trantor::Logger::kInfo)
             .addListener(options.web.bindAddress, options.web.port)
             .setThreadNum(options.web.threads)
-#ifndef _WIN32
-            .enableRunAsDaemon()
-#endif // _WIN32
             .setMaxConnectionNum(options.web.maxConnectionNum)
             .setMaxConnectionNumPerIP(0)
             .setUploadPath(options.upload.directory)
             .setClientMaxBodySize(options.web.maxUploadSize);
+
+#ifndef _WIN32
+        if (options.runAsDaemon)
+        {
+            std::cout << "Running application as a daemon" << std::endl;
+            drogon::app()
+                .enableRunAsDaemon();
+        }
+#endif // _WIN32
 
         std::cout << "Starting server on " << options.web.bindAddress << ":" << options.web.port << std::endl;
         std::cout << "Press Ctrl+C to stop the server" << std::endl << std::endl;
