@@ -15,6 +15,7 @@ public:
 #ifndef _WIN32
     bool runAsDaemon;
 #endif // _WIN32
+    bool sendTermSignal;
 
     struct WebProperties
     {

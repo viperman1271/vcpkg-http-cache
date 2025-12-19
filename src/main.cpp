@@ -29,6 +29,7 @@ int main(int argc, char* argv[])
 #ifndef _WIN32
         app.add_flag("-d,--daemon", options.runAsDaemon, "Forces the application to run as a daemon. Default: false");
 #endif // _WIN32
+        app.add_flag("-k,--kill", options.sendTermSignal, "Sends kill signal via IPC to other instances on the same machine. Default: false");
 
         app.parse(argc, argv);
 
@@ -81,7 +82,7 @@ int main(int argc, char* argv[])
                 std::filesystem::create_directories(uploadPath);
             }
         }
-
+        
         std::shared_ptr<BinaryCacheServer> server = std::make_shared<BinaryCacheServer>(options.cache.directory);
         drogon::app().registerController(server);
 

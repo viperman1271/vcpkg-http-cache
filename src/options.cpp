@@ -61,6 +61,7 @@ Options::Options()
 #ifndef _WIN32
     , runAsDaemon(false)
 #endif // _WIN32
+    , sendTermSignal(false)
 {
 }
 
