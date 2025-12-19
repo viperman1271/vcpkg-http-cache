@@ -81,13 +81,3 @@ void PersistenceInfo::UpdateThread()
         }
     }
 }
-
-void to_json(nlohmann::json& json, const PersistenceInfo& p)
-{
-    p.Save(json);
-}
-
-void from_json(const nlohmann::json& json, PersistenceInfo& p)
-{
-    p.Load(p);
-}

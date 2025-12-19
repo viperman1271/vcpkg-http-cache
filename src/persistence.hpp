@@ -42,6 +42,3 @@ private:
     mutable std::chrono::system_clock::time_point m_LastWrite;
     std::thread m_UpdateThread;
 };
-
-void to_json(nlohmann::json& json, const PersistenceInfo& p);
-void from_json(const nlohmann::json& json, PersistenceInfo& p);
