@@ -58,12 +58,19 @@ static const std::string DefaultConfigFile{ "/etc/vcpkg.cache/config.toml" };
 Options::Options()
     : configFile{ DefaultConfigFile }
     , saveConfigFile(false)
+#ifndef _WIN32
+    , runAsDaemon(false)
+#endif // _WIN32
 {
 }
 
 void Options::save()
 {
     toml::value config;
+
+#ifndef _WIN32
+    config["general"]["runAsDaemon"] = runAsDaemon;
+#endif // _WIN32
 
     config["web"]["bind"] = web.bindAddress;
     config["web"]["port"] = web.port;
@@ -112,6 +119,14 @@ void Options::load()
     }
 
     toml::value config = toml::parse(configFile);
+
+#ifndef _WIN32
+    if (config.contains("general") && config.at("general").is<toml::table>())
+    {
+        toml::table& generalTable = toml::find<toml::table>(config, "general");
+        get_toml_value(generalTable, "runAsDaemon", runAsDaemon);
+    }
+#endif // _WIN32
 
     if (config.contains("web") && config.at("web").is<toml::table>())
     {
@@ -172,5 +187,4 @@ Options::UploadProperties::UploadProperties()
     : directory("/var/vcpkg.cache/upload")
 #endif // _WIN32
 {
-
 }

@@ -26,6 +26,9 @@ int main(int argc, char* argv[])
 
         app.add_option("-c,--config", options.configFile, fmt::format("The config file to load (default: {})", options.configFile));
         app.add_flag("-s,--save", options.saveConfigFile, "Force save the configuration file (if it exists or not). Default: false");
+#ifndef _WIN32
+        app.add_flag("-d,--daemon", options.runAsDaemon, "Forces the application to run as a daemon. Default: false");
+#endif // _WIN32
 
         app.parse(argc, argv);
 
@@ -88,13 +91,19 @@ int main(int argc, char* argv[])
             .setLogLevel(trantor::Logger::kInfo)
             .addListener(options.web.bindAddress, options.web.port)
             .setThreadNum(options.web.threads)
-#ifndef _WIN32
-            .enableRunAsDaemon()
-#endif // _WIN32
             .setMaxConnectionNum(options.web.maxConnectionNum)
             .setMaxConnectionNumPerIP(0)
             .setUploadPath(options.upload.directory)
             .setClientMaxBodySize(options.web.maxUploadSize);
+
+#ifndef _WIN32
+        if (options.runAsDaemon)
+        {
+            std::cout << "Running application as a daemon" << std::endl;
+            drogon::app()
+                .enableRunAsDaemon();
+        }
+#endif // _WIN32
 
         std::cout << "Starting server on " << options.web.bindAddress << ":" << options.web.port << std::endl;
         std::cout << "Press Ctrl+C to stop the server" << std::endl << std::endl;

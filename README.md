@@ -73,6 +73,13 @@ This starts the server on `0.0.0.0:80` with cache directory `/var/vcpkg.cache/ca
 
 ```bash
 ./vcpkg-binary-cache-server
+
+OPTIONS:
+  -h,     --help              Print this help message and exit
+  -c,     --config TEXT       The config file to load (default: /etc/vcpkg.cache/config.toml)
+  -s,     --save              Force save the configuration file (if it exists or not). Default:
+                              false
+  -d,     --daemon            Forces the application to run as a daemon. Default: false # Linux only
 ```
 
 ## API Endpoints
