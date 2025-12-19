@@ -11,6 +11,7 @@ public:
     ~Options() = default;
 
     std::string configFile;
+    std::string persistenceFile;
     bool saveConfigFile;
 #ifndef _WIN32
     bool runAsDaemon;

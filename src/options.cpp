@@ -51,12 +51,15 @@ bool get_toml_value(toml::table& table, const std::string& variable, T& value)
 
 #ifdef _WIN32
 static const std::string DefaultConfigFile{ "C:\\.vcpkg.cache\\config.toml" };
+static const std::string PersistenceFile{ "C:\\.vcpkg.cache\\persistence.json" };
 #else
 static const std::string DefaultConfigFile{ "/etc/vcpkg.cache/config.toml" };
+static const std::string PersistenceFile{ "/etc/vcpkg.cache/persistence.json" };
 #endif
 
 Options::Options()
     : configFile{ DefaultConfigFile }
+    , persistenceFile{ PersistenceFile }
     , saveConfigFile(false)
 #ifndef _WIN32
     , runAsDaemon(false)
