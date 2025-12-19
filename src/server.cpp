@@ -7,19 +7,22 @@
 #include <iomanip>
 #include <sstream>
 
-BinaryCacheServer::BinaryCacheServer(const std::string& cacheDir)
-    : m_cacheDir(cacheDir) 
+BinaryCacheServer::BinaryCacheServer(const std::string& cacheDir, const std::string& persistenceFile)
+    : m_CacheDir(cacheDir) 
 {
     // Create cache directory if it doesn't exist
-    if (!std::filesystem::exists(m_cacheDir)) 
+    if (!std::filesystem::exists(m_CacheDir)) 
     {
-        std::filesystem::create_directories(m_cacheDir);
+        std::filesystem::create_directories(m_CacheDir);
     }
+
+    m_PersistenceInfo.SetPersistencePath(persistenceFile);
+    m_PersistenceInfo.Load();
 }
 
 void BinaryCacheServer::CheckPackage(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback, const std::string& triplet, const std::string& name, const std::string& version, const std::string& sha) const 
 {
-    ++m_requestCount;
+    m_PersistenceInfo.IncreaseTotalRequests();
 
     // Validate SHA
     if (!IsValidHash(sha)) 
@@ -55,8 +58,8 @@ void BinaryCacheServer::CheckPackage(const drogon::HttpRequestPtr& req, std::fun
 
 void BinaryCacheServer::GetPackage(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback, const std::string& triplet, const std::string& name, const std::string& version, const std::string& sha) const 
 {
-    ++m_requestCount;
-    ++m_downloadCount;
+    m_PersistenceInfo.IncreaseTotalRequests();
+    m_PersistenceInfo.GetDownloads();
 
     // Validate SHA
     if (!IsValidHash(sha)) 
@@ -126,8 +129,8 @@ void BinaryCacheServer::GetPackage(const drogon::HttpRequestPtr& req, std::funct
 
 void BinaryCacheServer::PutPackage(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback, const std::string& triplet, const std::string& name, const std::string& version, const std::string& sha) 
 {
-    ++m_requestCount;
-    ++m_uploadCount;
+    m_PersistenceInfo.IncreaseTotalRequests();
+    m_PersistenceInfo.GetUploads();
 
     if (!IsValidHash(sha)) 
     {
@@ -201,7 +204,7 @@ void BinaryCacheServer::PutPackage(const drogon::HttpRequestPtr& req, std::funct
 
 void BinaryCacheServer::GetStatus(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback) const 
 {
-    ++m_requestCount;
+    m_PersistenceInfo.IncreaseTotalRequests();
 
     try 
     {
@@ -225,10 +228,10 @@ void BinaryCacheServer::GetStatus(const drogon::HttpRequestPtr& req, std::functi
 
 void BinaryCacheServer::SetCacheDirectory(const std::string& dir) 
 {
-    m_cacheDir = dir;
-    if (!std::filesystem::exists(m_cacheDir)) 
+    m_CacheDir = dir;
+    if (!std::filesystem::exists(m_CacheDir)) 
     {
-        std::filesystem::create_directories(m_cacheDir);
+        std::filesystem::create_directories(m_CacheDir);
     }
 }
 
@@ -258,7 +261,7 @@ void BinaryCacheServer::Kill(const drogon::HttpRequestPtr& req, std::function<vo
 std::filesystem::path BinaryCacheServer::GetPackagePath(const std::string& triplet, const std::string& name, const std::string& version, const std::string& sha) const 
 {
     // Store packages in the vcpkg structure: triplet/name/version/sha.zip
-    return m_cacheDir / triplet / name / version / (sha + ".zip");
+    return m_CacheDir / triplet / name / version / (sha + ".zip");
 }
 
 bool BinaryCacheServer::IsValidHash(const std::string& hash) const 
@@ -281,15 +284,15 @@ nlohmann::json BinaryCacheServer::GetCacheStats() const
     
     stats["service"] = "vcpkg-binary-cache-server";
     stats["version"] = "1.0.0";
-    stats["cache_directory"] = m_cacheDir.string();
+    stats["cache_directory"] = m_CacheDir.string();
     
     // Count packages
     uint64_t packageCount = 0;
     uint64_t totalSize = 0;
     
-    if (std::filesystem::exists(m_cacheDir)) 
+    if (std::filesystem::exists(m_CacheDir)) 
     {
-        for (const std::filesystem::directory_entry& entry : std::filesystem::recursive_directory_iterator(m_cacheDir))
+        for (const std::filesystem::directory_entry& entry : std::filesystem::recursive_directory_iterator(m_CacheDir))
         {
             if (entry.is_regular_file() && entry.path().extension() == ".zip") 
             {
@@ -303,9 +306,9 @@ nlohmann::json BinaryCacheServer::GetCacheStats() const
     stats["total_size_bytes"] = totalSize;
     stats["total_size_mb"] = std::round(static_cast<double>((totalSize) / (1024.0 * 1024.0)) * 100.0) / 100.0;
     
-    stats["statistics"]["total_requests"] = m_requestCount.load();
-    stats["statistics"]["uploads"] = m_uploadCount.load();
-    stats["statistics"]["downloads"] = m_downloadCount.load();
+    stats["statistics"]["total_requests"] = m_PersistenceInfo.GetTotalRequests();
+    stats["statistics"]["uploads"] = m_PersistenceInfo.GetUploads();
+    stats["statistics"]["downloads"] = m_PersistenceInfo.GetDownloads();
     
     return stats;
 }
