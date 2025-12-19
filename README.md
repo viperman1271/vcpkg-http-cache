@@ -60,11 +60,11 @@ cmake --build build --config Debug -j4
 ### Basic Usage
 
 ```bash
-./build/Release/vcpkg-binary-cache-server # Linux
+./bin/vcpkg-binary-cache-server # Linux
 
 # -OR-
 
-.\build\Release\vcpkg-binary-cache-server.exe # Windows
+.\bin\Release\vcpkg-binary-cache-server.exe # Windows
 ```
 
 This starts the server on `0.0.0.0:80` with cache directory `/var/vcpkg.cache/cache` (Linux) or `C:\.vcpkg.cache\cache` (Windows).
