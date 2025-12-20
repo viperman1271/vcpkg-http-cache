@@ -26,6 +26,8 @@ source_group("" FILES
     src/options.hpp
     src/persistence.cpp
     src/persistence.hpp
+    src/policyengine.cpp
+    src/policyengine.hpp
     src/server.cpp
     src/server.hpp
 )
@@ -36,6 +38,8 @@ add_executable(vcpkg-binary-cache-server
     src/options.hpp
     src/persistence.cpp
     src/persistence.hpp
+    src/policyengine.cpp
+    src/policyengine.hpp
     src/server.cpp
     src/server.hpp
 )
