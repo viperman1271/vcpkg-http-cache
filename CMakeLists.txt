@@ -21,21 +21,40 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
 source_group("" FILES
+    src/accesspermission.cpp
+    src/accesspermission.hpp
+    src/apikey.cpp
+    src/apikey.hpp
     src/main.cpp
     src/options.cpp
     src/options.hpp
     src/persistence.cpp
     src/persistence.hpp
+    src/policyengine.cpp
+    src/policyengine.hpp
     src/server.cpp
     src/server.hpp
 )
 
+source_group("filters" FILES
+    src/filters/authfilter.cpp
+    src/filters/authfilter.hpp
+)
+
 add_executable(vcpkg-binary-cache-server
+    src/accesspermission.cpp
+    src/accesspermission.hpp
+    src/apikey.cpp
+    src/apikey.hpp
+    src/filters/authfilter.cpp
+    src/filters/authfilter.hpp
     src/main.cpp
     src/options.cpp
     src/options.hpp
     src/persistence.cpp
     src/persistence.hpp
+    src/policyengine.cpp
+    src/policyengine.hpp
     src/server.cpp
     src/server.hpp
 )

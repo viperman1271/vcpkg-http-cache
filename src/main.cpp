@@ -1,5 +1,6 @@
 #include <options.hpp>
 #include <server.hpp>
+#include <filters/authfilter.hpp>
 
 #include <CLI/CLI.hpp>
 #include <curl/curl.h>
@@ -126,6 +127,9 @@ int main(int argc, char* argv[])
         std::shared_ptr<BinaryCacheServer> server = std::make_shared<BinaryCacheServer>(options.cache.directory, options.persistenceFile);
         drogon::app().registerController(server);
 
+        std::shared_ptr<ApiKeyFilter> filter = server->CreateApiKeyFilter(options.permissions.requireAuthForRead, options.permissions.requireAuthForWrite, options.permissions.requireAuthForStatus);
+        drogon::app().registerFilter(filter);
+
         // Configure Drogon
         drogon::app()
             .setLogPath(options.web.logPath)
@@ -149,10 +153,15 @@ int main(int argc, char* argv[])
         std::cout << "Starting server on " << options.web.bindAddress << ":" << options.web.port << std::endl;
         std::cout << "Press Ctrl+C to stop the server" << std::endl << std::endl;
         std::cout << "API Endpoints:" << std::endl;
-        std::cout << "  HEAD http://" << options.web.bindAddress << ":" << options.web.port << "/{triplet}/{name}/{version}/{sha}  - Check package" << std::endl;
-        std::cout << "  GET  http://" << options.web.bindAddress << ":" << options.web.port << "/{triplet}/{name}/{version}/{sha}  - Download package" << std::endl;
-        std::cout << "  PUT  http://" << options.web.bindAddress << ":" << options.web.port << "/{triplet}/{name}/{version}/{sha}  - Upload package" << std::endl;
-        std::cout << "  GET  http://" << options.web.bindAddress << ":" << options.web.port << "/status  - Server status" << std::endl << std::endl;
+        std::cout << "  HEAD   http://" << options.web.bindAddress << ":" << options.web.port << "/{triplet}/{name}/{version}/{sha}  - Check package" << std::endl;
+        std::cout << "  GET    http://" << options.web.bindAddress << ":" << options.web.port << "/{triplet}/{name}/{version}/{sha}  - Download package" << std::endl;
+        std::cout << "  PUT    http://" << options.web.bindAddress << ":" << options.web.port << "/{triplet}/{name}/{version}/{sha}  - Upload package" << std::endl;
+        std::cout << "  GET    http://" << options.web.bindAddress << ":" << options.web.port << "/status  - Server status" << std::endl;
+        std::cout << "  POST   http://localhost:" << options.web.port << "/api/keys  - Create new API key" << std::endl;
+        std::cout << "  GET    http://localhost:" << options.web.port << "/api/keys/{key} - Get API key info" << std::endl;
+        std::cout << "  DELETE http://localhost:" << options.web.port << "/api/keys/{key} - Revokes/invalidates specified key" << std::endl;
+        std::cout << "  POST   http://localhost:" << options.web.port << "/api/keys/cleanup - Will execute cleanup of expired keys" << std::endl;
+        std::cout << std::endl;
 
         // Run the server
         drogon::app().run();

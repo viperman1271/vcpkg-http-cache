@@ -1,8 +1,11 @@
 #pragma once
 
+#include <apikey.hpp>
+
 #include <nlohmann/json.hpp>
 
 #include <chrono>
+#include <mutex>
 #include <thread>
 
 class PersistenceInfo final
@@ -18,6 +21,9 @@ public:
     void IncreaseDownloads() { ++m_Downloads; UpdateLastWrite(); }
     void IncreaseTotalRequests() { ++m_TotalRequests; UpdateLastWrite(); }
     void IncreaseUploads() { ++m_Uploads; UpdateLastWrite(); }
+
+    void UpdateOrAddApiKey(const ApiKey& apiKey);
+    const std::vector<ApiKey>& GetApiKeys() const { return m_ApiKeys; }
 
     void Save() const;
     void Save(nlohmann::json& json) const;
@@ -41,4 +47,7 @@ private:
     std::string m_Path;
     mutable std::chrono::system_clock::time_point m_LastWrite;
     std::thread m_UpdateThread;
+
+    std::vector<ApiKey> m_ApiKeys;
+    mutable std::mutex m_Mutex;
 };

@@ -1,6 +1,11 @@
-#include "server.hpp"
+#include <server.hpp>
+
+#include <filters/authfilter.hpp>
+#include <policyengine.hpp>
 
 #include <drogon/HttpResponse.h>
+#include <fmt/core.h>
+#include <fmt/chrono.h>
 
 #include <algorithm>
 #include <fstream>
@@ -16,8 +21,12 @@ BinaryCacheServer::BinaryCacheServer(const std::string& cacheDir, const std::str
         std::filesystem::create_directories(m_CacheDir);
     }
 
+    m_PolicyEngine = std::make_shared<PolicyEngine>(m_PersistenceInfo);
+
     m_PersistenceInfo.SetPersistencePath(persistenceFile);
     m_PersistenceInfo.Load();
+
+    m_PolicyEngine->Load();
 }
 
 void BinaryCacheServer::CheckPackage(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback, const std::string& triplet, const std::string& name, const std::string& version, const std::string& sha) const 
@@ -235,27 +244,207 @@ void BinaryCacheServer::SetCacheDirectory(const std::string& dir)
     }
 }
 
-void BinaryCacheServer::Kill(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback) const
+std::shared_ptr<ApiKeyFilter> BinaryCacheServer::CreateApiKeyFilter(bool requireAuthForRead, bool requireAuthForWrite, bool requireAuthForStatus) const
 {
-    const auto& addr = req->getPeerAddr();
-    const auto ip = addr.toIp();
+    return std::make_shared<ApiKeyFilter>(m_PolicyEngine, requireAuthForRead, requireAuthForWrite, requireAuthForStatus);
+}
 
-    if (ip != "127.0.0.1" && ip != "::1")
+void BinaryCacheServer::CreateKey(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback)
+{
+    try 
     {
-        auto resp = drogon::HttpResponse::newHttpResponse();
-        resp->setStatusCode(drogon::k403Forbidden);
+        // Parse request body
+        const nlohmann::json jsonBody = nlohmann::json::parse(req->body(), nullptr, false);
+        if (jsonBody.is_discarded())
+        {
+            const nlohmann::json error
+            {
+                { "error", "Invalid request" },
+                { "message", "Request body must be valid JSON" }
+            };
 
-        callback(resp);
+            drogon::HttpResponsePtr resp = drogon::HttpResponse::newHttpResponse();
+            resp->setStatusCode(drogon::k400BadRequest);
+            resp->setBody(nlohmann::to_string(error));
+            resp->setContentTypeCode(drogon::CT_APPLICATION_JSON);
+
+            callback(resp);
+            return;
+        }
+
+        // Extract parameters
+        const std::string description = jsonBody.contains("description") ? jsonBody.at("description").get<std::string>() : "";
+        const std::string permissionString = jsonBody.contains("permission") ? jsonBody.at("permission").get<std::string>() : "read";
+        std::optional<std::chrono::days> expiresInDays;
+        if (jsonBody.contains("expiresInDays"))
+        {
+            expiresInDays = std::chrono::days(jsonBody.at("expiresInDays").get<uint32_t>());
+        }
+
+        // Validate permission
+        const std::optional<AccessPermission> permission = FromString(permissionString);
+        if (!permission.has_value()) 
+        {
+            const nlohmann::json error
+            {
+                { "error", "Invalid permission" },
+                { "message", "Permission must be 'read', 'write', or 'readwrite'" }
+            };
+
+            drogon::HttpResponsePtr resp = drogon::HttpResponse::newHttpResponse();
+            resp->setStatusCode(drogon::k400BadRequest);
+            resp->setBody(nlohmann::to_string(error));
+            resp->setContentTypeCode(drogon::CT_APPLICATION_JSON);
+
+            callback(resp);
+        }
+        else
+        {
+            // Create the API key
+            const std::string newKey = m_PolicyEngine->CreateApiKey(description, permission.value(), expiresInDays);
+
+            const nlohmann::json response
+            {
+                { "success", true },
+                { "message", "API key created successfully" },
+                { "apiKey", newKey }
+            };
+
+            drogon::HttpResponsePtr resp = drogon::HttpResponse::newHttpResponse();
+            resp->setStatusCode(drogon::k201Created);
+            resp->setBody(nlohmann::to_string(response));
+            resp->setContentTypeCode(drogon::CT_APPLICATION_JSON);
+
+            callback(resp);
+        }
     }
-    else
+    catch (const std::exception& e) 
     {
+        SendExceptionAsJson(req, std::move(callback), e);
+    }
+}
+
+void BinaryCacheServer::GetKeyInfo(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback, const std::string& key) const
+{
+    try 
+    {
+        const std::optional<ApiKey> keyInfo = m_PolicyEngine->GetApiKey(key);
+
+        if (!keyInfo.has_value())
+        {
+            const nlohmann::json error
+            {
+                { "error", "Not found" },
+                { "message", "API key not found" }
+            };
+
+            drogon::HttpResponsePtr resp = drogon::HttpResponse::newHttpResponse();
+            resp->setStatusCode(drogon::k500InternalServerError);
+            resp->setBody(nlohmann::to_string(error));
+            resp->setContentTypeCode(drogon::CT_APPLICATION_JSON);
+
+            callback(resp);
+        }
+        else
+        {
+
+            const nlohmann::json response
+            {
+                { "success", true },
+                { "apiKey", ApiKeyToJson(keyInfo.value()) }
+            };
+
+            drogon::HttpResponsePtr resp = drogon::HttpResponse::newHttpResponse();
+            resp->setStatusCode(drogon::k500InternalServerError);
+            resp->setBody(nlohmann::to_string(response));
+            resp->setContentTypeCode(drogon::CT_APPLICATION_JSON);
+
+            callback(resp);
+        }
+    }
+    catch (const std::exception& e) 
+    {
+        SendExceptionAsJson(req, std::move(callback), e);
+    }
+}
+
+void BinaryCacheServer::RevokeKey(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback, const std::string& key)
+{
+    try 
+    {
+        const bool revoked = m_PolicyEngine->RevokeApiKey(key);
+
+        if (!revoked) 
+        {
+            const nlohmann::json error
+            {
+                { "error", "Not found" },
+                { "message", "API key not found" }
+            };
+
+            drogon::HttpResponsePtr resp = drogon::HttpResponse::newHttpResponse();
+            resp->setStatusCode(drogon::k404NotFound);
+            resp->setBody(nlohmann::to_string(error));
+            resp->setContentTypeCode(drogon::CT_APPLICATION_JSON);
+
+            callback(resp);
+        }
+        else
+        {
+            const nlohmann::json response
+            {
+                { "success", true },
+                { "message", "API key revoked successfully" }
+            };
+
+            drogon::HttpResponsePtr resp = drogon::HttpResponse::newHttpResponse();
+            resp->setStatusCode(drogon::k200OK);
+            resp->setBody(nlohmann::to_string(response));
+            resp->setContentTypeCode(drogon::CT_APPLICATION_JSON);
+
+            callback(resp);
+        }
+    }
+    catch (const std::exception& e) 
+    {
+        SendExceptionAsJson(req, std::move(callback), e);
+    }
+}
+
+void BinaryCacheServer::CleanupExpired(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback)
+{
+    try 
+    {
+        const size_t count = m_PolicyEngine->CleanupExpiredKeys();
+
+        const nlohmann::json response
+        {
+            { "success", true },
+            { "message", "Expired keys cleaned up" },
+            { "removedCount", count },
+        };
+
         drogon::HttpResponsePtr resp = drogon::HttpResponse::newHttpResponse();
         resp->setStatusCode(drogon::k200OK);
-
-        drogon::app().quit();
+        resp->setBody(nlohmann::to_string(response));
+        resp->setContentTypeCode(drogon::CT_APPLICATION_JSON);
 
         callback(resp);
     }
+    catch (const std::exception& e) 
+    {
+        SendExceptionAsJson(req, std::move(callback), e);
+    }
+}
+
+void BinaryCacheServer::Kill(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback) const
+{
+    drogon::HttpResponsePtr resp = drogon::HttpResponse::newHttpResponse();
+    resp->setStatusCode(drogon::k200OK);
+
+    drogon::app().quit();
+
+    callback(resp);
 }
 
 std::filesystem::path BinaryCacheServer::GetPackagePath(const std::string& triplet, const std::string& name, const std::string& version, const std::string& sha) const 
@@ -311,4 +500,38 @@ nlohmann::json BinaryCacheServer::GetCacheStats() const
     stats["statistics"]["downloads"] = m_PersistenceInfo.GetDownloads();
     
     return stats;
+}
+
+nlohmann::json BinaryCacheServer::ApiKeyToJson(const ApiKey& key) const
+{
+    nlohmann::json json
+    {
+        { "description", key.GetDescription() },
+        { "permission", ToString(key.GetPermission()) },
+        { "createdAt", fmt::format("{:%Y-%m-%d %H:%M:%S} UTC", key.GetCreatedAt()) },
+        { "revoked", key.GetIsRevoked() }
+    };
+
+    if (key.GetExpiry().has_value())
+    {
+        json["expiresAt"] = std::chrono::system_clock::to_time_t(key.GetExpiry().value());
+    }
+
+    return json;
+}
+
+void BinaryCacheServer::SendExceptionAsJson(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback, const std::exception& e) const
+{
+    const nlohmann::json error
+    {
+        { "error", "Internal server error" },
+        { "message", e.what() }
+    };
+
+    drogon::HttpResponsePtr resp = drogon::HttpResponse::newHttpResponse();
+    resp->setStatusCode(drogon::k500InternalServerError);
+    resp->setBody(nlohmann::to_string(error));
+    resp->setContentTypeCode(drogon::CT_APPLICATION_JSON);
+
+    callback(resp);
 }

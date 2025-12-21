@@ -10,24 +10,39 @@
 #include <memory>
 #include <string>
 
+class ApiKeyFilter;
+class PolicyEngine;
+
 class BinaryCacheServer : public drogon::HttpController<BinaryCacheServer, false> 
 {
 public:
     METHOD_LIST_BEGIN
     // HEAD request to check if a binary package exists
-    ADD_METHOD_TO(BinaryCacheServer::CheckPackage, "/{triplet}/{name}/{version}/{sha}", drogon::Head);
+    ADD_METHOD_TO(BinaryCacheServer::CheckPackage, "/{triplet}/{name}/{version}/{sha}", drogon::Head, "ApiKeyFilter");
     
     // GET request to download a binary package
-    ADD_METHOD_TO(BinaryCacheServer::GetPackage, "/{triplet}/{name}/{version}/{sha}", drogon::Get);
+    ADD_METHOD_TO(BinaryCacheServer::GetPackage, "/{triplet}/{name}/{version}/{sha}", drogon::Get, "ApiKeyFilter");
     
     // PUT request to upload a binary package
-    ADD_METHOD_TO(BinaryCacheServer::PutPackage, "/{triplet}/{name}/{version}/{sha}", drogon::Put);
+    ADD_METHOD_TO(BinaryCacheServer::PutPackage, "/{triplet}/{name}/{version}/{sha}", drogon::Put, "ApiKeyFilter");
     
     // GET server status
-    ADD_METHOD_TO(BinaryCacheServer::GetStatus, "/status", drogon::Get);
+    ADD_METHOD_TO(BinaryCacheServer::GetStatus, "/status", drogon::Get, "ApiKeyFilter");
 
     // GET method to terminate server via IPC
-    ADD_METHOD_TO(BinaryCacheServer::Kill, "/internal/kill", drogon::Get);
+    ADD_METHOD_TO(BinaryCacheServer::Kill, "/internal/kill", drogon::Get, "drogon::LocalHostFilter");
+
+    // Create new API key
+    ADD_METHOD_TO(BinaryCacheServer::CreateKey, "/api/keys", drogon::Post, "drogon::LocalHostFilter");
+
+    // Get specific API key info
+    ADD_METHOD_TO(BinaryCacheServer::GetKeyInfo, "/api/keys/{key}", drogon::Get, "drogon::LocalHostFilter");
+
+    // Revoke API key
+    ADD_METHOD_TO(BinaryCacheServer::RevokeKey, "/api/keys/{key}", drogon::Delete, "drogon::LocalHostFilter");
+
+    // Cleanup expired keys
+    ADD_METHOD_TO(BinaryCacheServer::CleanupExpired, "/api/keys/cleanup", drogon::Post, "drogon::LocalHostFilter");
     
     METHOD_LIST_END
 
@@ -87,7 +102,40 @@ public:
      * @brief Get the cache directory
      * @return Cache directory path
      */
-    std::string getCacheDirectory() const { return m_CacheDir.string(); }
+    std::string GetCacheDirectory() const { return m_CacheDir.string(); }
+
+    /**
+     * @brief Creates an instance of the ApiKeyFilter
+     * @return std::shared_ptr instance of ApiKeyFilter
+     */
+    std::shared_ptr<ApiKeyFilter> CreateApiKeyFilter(bool requireAuthForRead = false, bool requireAuthForWrite = false, bool requireAuthForStatus = false) const;
+
+    /**
+     * @brief Create a new API key
+     *
+     * Request body (JSON):
+     * {
+     *   "description": "Key for CI/CD pipeline",
+     *   "permission": "readwrite",  // "read", "write", or "readwrite"
+     *   "expires_in_days": 365       // Optional, 0 = no expiration
+     * }
+     */
+    void CreateKey(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback);
+
+    /**
+     * @brief Get information about a specific API key
+     */
+    void GetKeyInfo(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback, const std::string& key) const;
+
+    /**
+     * @brief Revoke an API key
+     */
+    void RevokeKey(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback, const std::string& key);
+
+    /**
+     * @brief Clean up expired API keys
+     */
+    void CleanupExpired(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback);
 
 private:
     /**
@@ -120,8 +168,19 @@ private:
      */
     nlohmann::json GetCacheStats() const;
 
+    /**
+     * @brief Convert ApiKey to JSON object
+     */
+    nlohmann::json ApiKeyToJson(const ApiKey& key) const;
+
+    /**
+     * @brief Send exception information as a JSON response
+     */
+    void SendExceptionAsJson(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback, const std::exception& e) const;
+
 private:
     std::filesystem::path m_CacheDir;
 
     mutable PersistenceInfo m_PersistenceInfo;
+    std::shared_ptr<PolicyEngine> m_PolicyEngine;
 };

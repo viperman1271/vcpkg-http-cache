@@ -87,6 +87,10 @@ void Options::save()
 
     config["upload"]["path"] = upload.directory;
 
+    config["permissions"]["requireAuthForRead"] = permissions.requireAuthForRead;
+    config["permissions"]["requireAuthForWrite"] = permissions.requireAuthForWrite;
+    config["permissions"]["requireAuthForStatus"] = permissions.requireAuthForStatus;
+
     try
     {
         std::filesystem::path configFilePath(configFile);
@@ -155,6 +159,14 @@ void Options::load()
         get_toml_value(uploadTable, "path", upload.directory);
     }
 
+    if (config.contains("permissions") && config.at("permissions").is<toml::table>())
+    {
+        toml::table& permissionsTable = toml::find<toml::table>(config, "permissions");
+        get_toml_value(permissionsTable, "requireAuthForRead", permissions.requireAuthForRead);
+        get_toml_value(permissionsTable, "requireAuthForWrite", permissions.requireAuthForWrite);
+        get_toml_value(permissionsTable, "requireAuthForStatus", permissions.requireAuthForStatus);
+    }
+
     if (saveConfigFile)
     {
         save();
@@ -191,4 +203,12 @@ Options::UploadProperties::UploadProperties()
     : directory("/var/vcpkg.cache/upload")
 #endif // _WIN32
 {
+}
+
+Options::Permissions::Permissions()
+    : requireAuthForRead(false)
+    , requireAuthForWrite(false)
+    , requireAuthForStatus(false)
+{
+
 }

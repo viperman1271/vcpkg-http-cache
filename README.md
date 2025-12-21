@@ -84,6 +84,14 @@ OPTIONS:
 
 ## API Endpoints
 
+### Authorization/Access Control
+
+If the options have specified the need for an API Key for read, upload, or status endpoints, the vcpkg (or CURL) must include the API Key as a header.
+
+```bash
+curl -H "Authorization: Bearer vcpkg_28ea09345eef27c3c93759e530516427" http://localhost/status
+```
+
 ### Check if Package Exists
 
 ```http
@@ -154,19 +162,44 @@ curl http://localhost/status
 }
 ```
 
+### Create new API Key
+
+```http
+POST /api/keys
+```
+
+Create a new API key with the given description and the specified permission
+
+**Example:**
+```bash
+curl -X POST http://localhost/api/keys -H "Content-Type: application/json" -d `{ \"description\" : \"This is the description of the API key\", \"permission\" : \"readwrite\" }`
+```
+```powershell
+curl -X POST http://localhost/api/keys -H "Content-Type: application/json" -d "{ \"description\" : \"This is the description of the API key\", \"permission\" : \"readwrite\" }"
+```
+
+**Response:**
+```json
+{
+    "apiKey": "vcpkg_28ea09345eef27c3c93759e530516427",
+    "message": "API key created successfully", 
+    "success": true
+}
+```
+
 ## Integrating with vcpkg
 
 To use this server as a binary cache for vcpkg, configure vcpkg with:
 
 ```bash
 # Set binary cache to use your server
-vcpkg install <package> --binarysource=http,http://localhost/{triplet}/{name}/{version}/{sha},readwrite
+vcpkg install <package> --binarysource="http,http://localhost/{triplet}/{name}/{version}/{sha},readwrite,Authorization: Bearer vcpkg_28ea09345eef27c3c93759e530516427"
 ```
 
 Or set it in your environment:
 
 ```bash
-export VCPKG_BINARY_SOURCES="http,http://localhost/{triplet}/{name}/{version}/{sha},readwrite" # Linux
+export VCPKG_BINARY_SOURCES="http,http://localhost/{triplet}/{name}/{version}/{sha},readwrite,Authorization: Bearer vcpkg_28ea09345eef27c3c93759e530516427" # Linux
 ```
 ## Performance Considerations
 
@@ -177,11 +210,11 @@ export VCPKG_BINARY_SOURCES="http,http://localhost/{triplet}/{name}/{version}/{s
 
 ## Security Notes
 
-⚠️ **Important Security Considerations:**
+**Important Security Considerations:**
 
 - This server does NOT include authentication
-- Suitable for trusted networks only
-- For production use, add authentication middleware
+- By default, authentication is not required. Configure limitations in the options (status, read, write)
+- For production use, add authentication middleware or configure internal authentication
 - Consider using HTTPS with a reverse proxy (nginx, Apache, Caddy)
 - Validate uploaded package integrity
 - Implement rate limiting for uploads
