@@ -1,7 +1,12 @@
 #include <filters/authfilter.hpp>
 
-ApiKeyFilter::ApiKeyFilter(std::shared_ptr<PolicyEngine> policyEngine)
+#include <nlohmann/json.hpp>
+
+ApiKeyFilter::ApiKeyFilter(std::shared_ptr<PolicyEngine> policyEngine, bool requireAuthForRead, bool requireAuthForWrite, bool requireAuthForStatus)
     : m_PolicyEngine(policyEngine)
+    , m_RequireAuthForRead(requireAuthForRead)
+    , m_RequireAuthForWrite(requireAuthForWrite)
+    , m_RequireAuthForStatus(requireAuthForStatus)
 {
 }
 

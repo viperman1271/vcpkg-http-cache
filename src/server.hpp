@@ -10,21 +10,24 @@
 #include <memory>
 #include <string>
 
+class ApiKeyFilter;
+class PolicyEngine;
+
 class BinaryCacheServer : public drogon::HttpController<BinaryCacheServer, false> 
 {
 public:
     METHOD_LIST_BEGIN
     // HEAD request to check if a binary package exists
-    ADD_METHOD_TO(BinaryCacheServer::CheckPackage, "/{triplet}/{name}/{version}/{sha}", drogon::Head);
+    ADD_METHOD_TO(BinaryCacheServer::CheckPackage, "/{triplet}/{name}/{version}/{sha}", drogon::Head, "ApiKeyFilter");
     
     // GET request to download a binary package
-    ADD_METHOD_TO(BinaryCacheServer::GetPackage, "/{triplet}/{name}/{version}/{sha}", drogon::Get);
+    ADD_METHOD_TO(BinaryCacheServer::GetPackage, "/{triplet}/{name}/{version}/{sha}", drogon::Get, "ApiKeyFilter");
     
     // PUT request to upload a binary package
-    ADD_METHOD_TO(BinaryCacheServer::PutPackage, "/{triplet}/{name}/{version}/{sha}", drogon::Put);
+    ADD_METHOD_TO(BinaryCacheServer::PutPackage, "/{triplet}/{name}/{version}/{sha}", drogon::Put, "ApiKeyFilter");
     
     // GET server status
-    ADD_METHOD_TO(BinaryCacheServer::GetStatus, "/status", drogon::Get);
+    ADD_METHOD_TO(BinaryCacheServer::GetStatus, "/status", drogon::Get, "ApiKeyFilter");
 
     // GET method to terminate server via IPC
     ADD_METHOD_TO(BinaryCacheServer::Kill, "/internal/kill", drogon::Get, "drogon::LocalHostFilter");
@@ -93,7 +96,7 @@ public:
      * @brief Creates an instance of the ApiKeyFilter
      * @return std::shared_ptr instance of ApiKeyFilter
      */
-    std::shared_ptr<ApiKeyFilter> CreateApiKeyFilter() const;
+    std::shared_ptr<ApiKeyFilter> CreateApiKeyFilter(bool requireAuthForRead = false, bool requireAuthForWrite = false, bool requireAuthForStatus = false) const;
 
 private:
     /**

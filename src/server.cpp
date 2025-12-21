@@ -240,9 +240,9 @@ void BinaryCacheServer::SetCacheDirectory(const std::string& dir)
     }
 }
 
-std::shared_ptr<ApiKeyFilter> BinaryCacheServer::CreateApiKeyFilter() const
+std::shared_ptr<ApiKeyFilter> BinaryCacheServer::CreateApiKeyFilter(bool requireAuthForRead, bool requireAuthForWrite, bool requireAuthForStatus) const
 {
-    return std::make_shared<ApiKeyFilter>(m_PolicyEngine);
+    return std::make_shared<ApiKeyFilter>(m_PolicyEngine, requireAuthForRead, requireAuthForWrite, requireAuthForStatus);
 }
 
 void BinaryCacheServer::Kill(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback) const

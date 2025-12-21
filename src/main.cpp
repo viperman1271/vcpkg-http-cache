@@ -127,7 +127,7 @@ int main(int argc, char* argv[])
         std::shared_ptr<BinaryCacheServer> server = std::make_shared<BinaryCacheServer>(options.cache.directory, options.persistenceFile);
         drogon::app().registerController(server);
 
-        std::shared_ptr<ApiKeyFilter> filter = server->CreateApiKeyFilter();
+        std::shared_ptr<ApiKeyFilter> filter = server->CreateApiKeyFilter(options.permissions.requireAuthForRead, options.permissions.requireAuthForWrite, options.permissions.requireAuthForStatus);
         drogon::app().registerFilter(filter);
 
         // Configure Drogon

@@ -18,7 +18,7 @@ public:
      *
      * @param policy_engine Shared pointer to the policy engine
      */
-    explicit ApiKeyFilter(std::shared_ptr<PolicyEngine> policyEngine);
+    explicit ApiKeyFilter(std::shared_ptr<PolicyEngine> policyEngine, bool requireAuthForRead = false, bool requireAuthForWrite = false, bool requireAuthForStatus = false);
 
     /**
      * @brief Filter method called before request handling
@@ -31,4 +31,8 @@ public:
 
 private:
     std::shared_ptr<PolicyEngine> m_PolicyEngine;
+
+    const bool m_RequireAuthForRead;
+    const bool m_RequireAuthForWrite;
+    const bool m_RequireAuthForStatus;
 };
