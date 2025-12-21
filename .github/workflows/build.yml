@@ -62,6 +62,16 @@ jobs:
       run: |
         git submodule update --init --recursive
 
+    - name: Configure vcpkg http binary cache (Linux)
+      if: runner.os != 'Windows'
+      run: |
+        export VCPKG_BINARY_SOURCES="https,https://vcpkg.mikefilion.org/{triplet}/{name}/{version}/{sha},readwrite,Authorization: Bearer ${{ secrets.VCPKG_CACHE_APIKEY }}"
+
+    - name: Configure vcpkg http binary cache (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        set VCPKG_BINARY_SOURCES="https,https://vcpkg.mikefilion.org/{triplet}/{name}/{version}/{sha},readwrite,Authorization: Bearer ${{ secrets.VCPKG_CACHE_APIKEY }}"
+
     - name: Install vcpkg
       run: |
         git clone https://github.com/microsoft/vcpkg.git
