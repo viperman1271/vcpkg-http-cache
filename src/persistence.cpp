@@ -1,6 +1,7 @@
 #include <persistence.hpp>
 
 #include <fstream>
+#include <iostream>
 
 PersistenceInfo::PersistenceInfo()
     : m_ShouldContinue(true)
@@ -75,18 +76,34 @@ void PersistenceInfo::Save() const
 
 void PersistenceInfo::Load(const nlohmann::json& json)
 {
-    m_Downloads = json.at("downloads").get<uint32_t>();
-    m_TotalRequests = json.at("totalRequests").get<uint32_t>();
-    m_Uploads = json.at("uploads").get<uint32_t>();
-
-    if (json.contains("apiKeys"))
+    try
     {
-        nlohmann::json apiKeys = json.at("apiKeys");
-        for (nlohmann::json json : apiKeys)
+        if (json.contains("downloads"))
         {
-            ApiKey apiKey(json);
-            m_ApiKeys.emplace_back(std::move(apiKey));
+            m_Downloads = json.at("downloads").get<uint32_t>();
         }
+        if (json.contains("totalRequests"))
+        {
+            m_TotalRequests = json.at("totalRequests").get<uint32_t>();
+        }
+        if (json.contains("uploads"))
+        {
+            m_Uploads = json.at("uploads").get<uint32_t>();
+        }
+
+        if (json.contains("apiKeys"))
+        {
+            nlohmann::json apiKeys = json.at("apiKeys");
+            for (nlohmann::json json : apiKeys)
+            {
+                ApiKey apiKey(json);
+                m_ApiKeys.emplace_back(std::move(apiKey));
+            }
+        }
+    }
+    catch (const nlohmann::json::exception& e)
+    {
+        std::cerr << "Persistence loading error: " << e.what() << std::endl;
     }
 }
 
