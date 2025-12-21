@@ -185,7 +185,7 @@ jobs:
       - name: Build and push server Docker image
         uses: docker/build-push-action@v4
         with:
-          context: ./tmp/server
+          context: ./bin
           push: true
           tags: |
             viperman1271/vcpkg-binary-cache-server:${{ steps.extract_version.outputs.version }}
