@@ -44,6 +44,15 @@ public:
         std::string directory;
     } upload;
 
+    struct Permissions
+    {
+        Permissions();
+
+        bool requireAuthForRead;
+        bool requireAuthForWrite;
+        bool requireAuthForStatus;
+    } permissions;
+
     void save();
     void load();
 };
