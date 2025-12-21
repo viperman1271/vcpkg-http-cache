@@ -169,23 +169,6 @@ jobs:
           name: artifacts-${{ runner.os }}-${{ matrix.cpp_compiler }}
           path: ${{ github.workspace }}/bin
 
-      - name: Create tmp directories
-        run: |
-          mkdir ${{ github.workspace }}/tmp
-          mkdir ${{ github.workspace }}/tmp/server
-          mkdir ${{ github.workspace }}/tmp/client
-          mkdir ${{ github.workspace }}/tmp/web
-
-      - name: Copy files to correct location
-        run: |
-          cp ${{ github.workspace }}/bin/netwatchdogd ${{ github.workspace }}/tmp/server/.
-          cp ${{ github.workspace }}/docker/server/* ${{ github.workspace }}/tmp/server/.
-          cp ${{ github.workspace }}/bin/netwatchdogc ${{ github.workspace }}/tmp/client/.
-          cp ${{ github.workspace }}/docker/client/* ${{ github.workspace }}/tmp/client/.
-          cp ${{ github.workspace }}/bin/web ${{ github.workspace }}/tmp/web/.
-          cp -r ${{ github.workspace }}/data/* ${{ github.workspace }}/tmp/web/.
-          cp ${{ github.workspace }}/docker/web/* ${{ github.workspace }}/tmp/web/.
-      
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
@@ -205,23 +188,5 @@ jobs:
           context: ./tmp/server
           push: true
           tags: |
-            viperman1271/netwatchdog-server:${{ steps.extract_version.outputs.version }}
-            viperman1271/netwatchdog-server:latest
-
-      - name: Build and push client Docker image
-        uses: docker/build-push-action@v4
-        with:
-          context: ./tmp/client
-          push: true
-          tags: |
-            viperman1271/netwatchdog-client:${{ steps.extract_version.outputs.version }}
-            viperman1271/netwatchdog-client:latest
-
-      - name: Build and push server web image
-        uses: docker/build-push-action@v4
-        with:
-          context: ./tmp/web
-          push: true
-          tags: |
-            viperman1271/netwatchdog-web:${{ steps.extract_version.outputs.version }}
-            viperman1271/netwatchdog-web:latest
+            viperman1271/vcpkg-binary-cache-server:${{ steps.extract_version.outputs.version }}
+            viperman1271/vcpkg-binary-cache-server:latest
