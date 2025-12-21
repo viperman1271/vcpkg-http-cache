@@ -87,7 +87,13 @@ public:
      * @brief Get the cache directory
      * @return Cache directory path
      */
-    std::string getCacheDirectory() const { return m_CacheDir.string(); }
+    std::string GetCacheDirectory() const { return m_CacheDir.string(); }
+
+    /**
+     * @brief Creates an instance of the ApiKeyFilter
+     * @return std::shared_ptr instance of ApiKeyFilter
+     */
+    std::shared_ptr<ApiKeyFilter> CreateApiKeyFilter() const;
 
 private:
     /**
@@ -124,4 +130,5 @@ private:
     std::filesystem::path m_CacheDir;
 
     mutable PersistenceInfo m_PersistenceInfo;
+    std::shared_ptr<PolicyEngine> m_PolicyEngine;
 };

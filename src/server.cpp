@@ -1,4 +1,7 @@
-#include "server.hpp"
+#include <server.hpp>
+
+#include <filters/authfilter.hpp>
+#include <policyengine.hpp>
 
 #include <drogon/HttpResponse.h>
 
@@ -15,6 +18,8 @@ BinaryCacheServer::BinaryCacheServer(const std::string& cacheDir, const std::str
     {
         std::filesystem::create_directories(m_CacheDir);
     }
+
+    m_PolicyEngine = std::make_shared<PolicyEngine>(m_PersistenceInfo);
 
     m_PersistenceInfo.SetPersistencePath(persistenceFile);
     m_PersistenceInfo.Load();
@@ -233,6 +238,11 @@ void BinaryCacheServer::SetCacheDirectory(const std::string& dir)
     {
         std::filesystem::create_directories(m_CacheDir);
     }
+}
+
+std::shared_ptr<ApiKeyFilter> BinaryCacheServer::CreateApiKeyFilter() const
+{
+    return std::make_shared<ApiKeyFilter>(m_PolicyEngine);
 }
 
 void BinaryCacheServer::Kill(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback) const

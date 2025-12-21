@@ -24,7 +24,7 @@ enum class AccessPermission
 struct ApiKey 
 {
 public:
-    ApiKey(const std::string& k, const std::string& desc, AccessPermission perm, std::optional<std::chrono::system_clock::time_point> expiry = std::nullopt);
+    ApiKey(const std::string& key, const std::string& desc, AccessPermission perm, std::optional<std::chrono::system_clock::time_point> expiry = std::nullopt);
 
     bool GetIsRevoked() const { return m_Revoked; }
     void Revoke() { m_Revoked = true; }

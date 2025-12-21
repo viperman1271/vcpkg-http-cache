@@ -32,7 +32,14 @@ source_group("" FILES
     src/server.hpp
 )
 
+source_group("filters" FILES
+    src/filters/authfilter.cpp
+    src/filters/authfilter.hpp
+)
+
 add_executable(vcpkg-binary-cache-server
+    src/filters/authfilter.cpp
+    src/filters/authfilter.hpp
     src/main.cpp
     src/options.cpp
     src/options.hpp

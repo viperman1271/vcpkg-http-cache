@@ -1,5 +1,6 @@
 #include <options.hpp>
 #include <server.hpp>
+#include <filters/authfilter.hpp>
 
 #include <CLI/CLI.hpp>
 #include <curl/curl.h>
@@ -125,6 +126,9 @@ int main(int argc, char* argv[])
         
         std::shared_ptr<BinaryCacheServer> server = std::make_shared<BinaryCacheServer>(options.cache.directory, options.persistenceFile);
         drogon::app().registerController(server);
+
+        std::shared_ptr<ApiKeyFilter> filter = server->CreateApiKeyFilter();
+        drogon::app().registerFilter(filter);
 
         // Configure Drogon
         drogon::app()
