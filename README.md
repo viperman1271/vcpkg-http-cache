@@ -84,6 +84,14 @@ OPTIONS:
 
 ## API Endpoints
 
+### Authorization/Access Control
+
+If the options have specified the need for an API Key for read, upload, or status endpoints, the vcpkg (or CURL) must include the API Key as a header.
+
+```bash
+curl -H "Authorization: Bearer vcpkg_28ea09345eef27c3c93759e530516427" http://localhost/status
+```
+
 ### Check if Package Exists
 
 ```http
@@ -151,6 +159,31 @@ curl http://localhost/status
     "uploads": 42,
     "downloads": 100
   }
+}
+```
+
+### Create new API Key
+
+```http
+POST /api/keys
+```
+
+Create a new API key with the given description and the specified permission
+
+**Example:**
+```bash
+curl -X POST http://localhost/api/keys -H "Content-Type: application/json" -d `{ \"description\" : \"This is the description of the API key\", \"permission\" : \"readwrite\" }`
+```
+```powershell
+curl -X POST http://localhost/api/keys -H "Content-Type: application/json" -d "{ \"description\" : \"This is the description of the API key\", \"permission\" : \"readwrite\" }"
+```
+
+**Response:**
+```json
+{
+    "apiKey": "vcpkg_28ea09345eef27c3c93759e530516427",
+    "message": "API key created successfully", 
+    "success": true
 }
 ```
 

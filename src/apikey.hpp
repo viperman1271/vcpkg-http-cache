@@ -23,6 +23,7 @@ public:
     const std::string& GetKey() const { return m_Key; }
     const std::string& GetDescription() const { return m_Description; }
 
+    const std::chrono::system_clock::time_point GetCreatedAt() const { return m_CreatedAt; }
     const std::optional<std::chrono::system_clock::time_point>& GetExpiry() const { return m_ExpiresAt; }
 
     void Save(nlohmann::json& json) const;

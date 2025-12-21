@@ -31,6 +31,18 @@ public:
 
     // GET method to terminate server via IPC
     ADD_METHOD_TO(BinaryCacheServer::Kill, "/internal/kill", drogon::Get, "drogon::LocalHostFilter");
+
+    // Create new API key
+    ADD_METHOD_TO(BinaryCacheServer::CreateKey, "/api/keys", drogon::Post, "drogon::LocalHostFilter");
+
+    // Get specific API key info
+    ADD_METHOD_TO(BinaryCacheServer::GetKeyInfo, "/api/keys/{key}", drogon::Get, "drogon::LocalHostFilter");
+
+    // Revoke API key
+    ADD_METHOD_TO(BinaryCacheServer::RevokeKey, "/api/keys/{key}", drogon::Delete, "drogon::LocalHostFilter");
+
+    // Cleanup expired keys
+    ADD_METHOD_TO(BinaryCacheServer::CleanupExpired, "/api/keys/cleanup", drogon::Post, "drogon::LocalHostFilter");
     
     METHOD_LIST_END
 
@@ -98,6 +110,33 @@ public:
      */
     std::shared_ptr<ApiKeyFilter> CreateApiKeyFilter(bool requireAuthForRead = false, bool requireAuthForWrite = false, bool requireAuthForStatus = false) const;
 
+    /**
+     * @brief Create a new API key
+     *
+     * Request body (JSON):
+     * {
+     *   "description": "Key for CI/CD pipeline",
+     *   "permission": "readwrite",  // "read", "write", or "readwrite"
+     *   "expires_in_days": 365       // Optional, 0 = no expiration
+     * }
+     */
+    void CreateKey(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback);
+
+    /**
+     * @brief Get information about a specific API key
+     */
+    void GetKeyInfo(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback, const std::string& key) const;
+
+    /**
+     * @brief Revoke an API key
+     */
+    void RevokeKey(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback, const std::string& key);
+
+    /**
+     * @brief Clean up expired API keys
+     */
+    void CleanupExpired(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback);
+
 private:
     /**
      * @brief Get server status
@@ -128,6 +167,16 @@ private:
      * @return JSON object with cache stats
      */
     nlohmann::json GetCacheStats() const;
+
+    /**
+     * @brief Convert ApiKey to JSON object
+     */
+    nlohmann::json ApiKeyToJson(const ApiKey& key) const;
+
+    /**
+     * @brief Send exception information as a JSON response
+     */
+    void SendExceptionAsJson(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback, const std::exception& e) const;
 
 private:
     std::filesystem::path m_CacheDir;

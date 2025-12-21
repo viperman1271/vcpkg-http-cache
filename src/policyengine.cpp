@@ -18,6 +18,7 @@ std::string PolicyEngine::CreateApiKey(const std::string& description, AccessPer
     ApiKey key(GenerateKey(), description, permission, expiresAt);
 
     std::lock_guard<std::recursive_mutex> lock(m_Mutex);
+
     const auto iter = m_ApiKeys.emplace(key.GetKey(), std::move(key));
     m_PersistenceInfo.UpdateOrAddApiKey(iter.first->second);
     return iter.first->first;
@@ -26,6 +27,7 @@ std::string PolicyEngine::CreateApiKey(const std::string& description, AccessPer
 bool PolicyEngine::RevokeApiKey(const std::string& apiKey)
 {
     std::lock_guard<std::recursive_mutex> lock(m_Mutex);
+
     const auto iter = m_ApiKeys.find(apiKey);
     if(iter != m_ApiKeys.end() && !iter->second.GetIsRevoked())
     {
@@ -40,6 +42,7 @@ bool PolicyEngine::RevokeApiKey(const std::string& apiKey)
 bool PolicyEngine::ValidateApiKey(const std::string& apiKey, AccessPermission requestedPermission) const
 {
     std::lock_guard<std::recursive_mutex> lock(m_Mutex);
+
     const auto iter = m_ApiKeys.find(apiKey);
     if (iter != m_ApiKeys.end() && !iter->second.GetIsRevoked())
     {
@@ -62,6 +65,7 @@ bool PolicyEngine::ValidateApiKey(const std::string& apiKey, AccessPermission re
 bool PolicyEngine::ValidateApiKey(const std::string& apiKey) const
 {
     std::lock_guard<std::recursive_mutex> lock(m_Mutex);
+
     const auto iter = m_ApiKeys.find(apiKey);
     return iter != m_ApiKeys.end() && !iter->second.GetIsRevoked();
 }
@@ -85,6 +89,19 @@ size_t PolicyEngine::CleanupExpiredKeys()
     }
 
     return removedKeys;
+}
+
+std::optional<ApiKey> PolicyEngine::GetApiKey(const std::string& apiKey) const
+{
+    std::lock_guard<std::recursive_mutex> lock(m_Mutex);
+
+    const auto iter = m_ApiKeys.find(apiKey);
+    if (iter != m_ApiKeys.end())
+    {
+        return iter->second;
+    }
+
+    return std::nullopt;
 }
 
 std::string PolicyEngine::GenerateKey()

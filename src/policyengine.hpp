@@ -65,6 +65,12 @@ public:
      */
     size_t CleanupExpiredKeys();
 
+    /**
+     * @brief Fetch API Key information
+     *
+     * @return ApiKey 
+     */
+    std::optional<ApiKey> GetApiKey(const std::string& apiKey) const;
 private:
     /**
      * @brief Generate a cryptographically secure random API key

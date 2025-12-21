@@ -81,7 +81,6 @@ drogon::HttpResponsePtr ApiKeyFilter::CreateUnauthorizedResponse(const std::stri
     drogon::HttpResponsePtr resp = drogon::HttpResponse::newHttpResponse();
     resp->setStatusCode(drogon::k401Unauthorized);
     resp->setBody(std::move(response.dump(4)));
-    resp->addHeader("WWW-Authenticate", "ApiKey");
     resp->setContentTypeCode(drogon::CT_APPLICATION_JSON);
 
     return resp;
@@ -99,7 +98,6 @@ drogon::HttpResponsePtr ApiKeyFilter::CreateForbiddenResponse(const std::string&
     drogon::HttpResponsePtr resp = drogon::HttpResponse::newHttpResponse();
     resp->setStatusCode(drogon::k403Forbidden);
     resp->setBody(std::move(response.dump(4)));
-    resp->addHeader("WWW-Authenticate", "ApiKey");
     resp->setContentTypeCode(drogon::CT_APPLICATION_JSON);
 
     return resp;
