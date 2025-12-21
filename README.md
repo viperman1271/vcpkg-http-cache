@@ -193,13 +193,13 @@ To use this server as a binary cache for vcpkg, configure vcpkg with:
 
 ```bash
 # Set binary cache to use your server
-vcpkg install <package> --binarysource=http,http://localhost/{triplet}/{name}/{version}/{sha},readwrite
+vcpkg install <package> --binarysource="http,http://localhost:8888/{triplet}/{name}/{version}/{sha},readwrite,Authorization: Bearer vcpkg_28ea09345eef27c3c93759e530516427"
 ```
 
 Or set it in your environment:
 
 ```bash
-export VCPKG_BINARY_SOURCES="http,http://localhost/{triplet}/{name}/{version}/{sha},readwrite" # Linux
+export VCPKG_BINARY_SOURCES="http,http://localhost:8888/{triplet}/{name}/{version}/{sha},readwrite,Authorization: Bearer vcpkg_28ea09345eef27c3c93759e530516427" # Linux
 ```
 ## Performance Considerations
 
@@ -210,11 +210,11 @@ export VCPKG_BINARY_SOURCES="http,http://localhost/{triplet}/{name}/{version}/{s
 
 ## Security Notes
 
-⚠️ **Important Security Considerations:**
+**Important Security Considerations:**
 
 - This server does NOT include authentication
-- Suitable for trusted networks only
-- For production use, add authentication middleware
+- By default, authentication is not required. Configure limitations in the options (status, read, write)
+- For production use, add authentication middleware or configure internal authentication
 - Consider using HTTPS with a reverse proxy (nginx, Apache, Caddy)
 - Validate uploaded package integrity
 - Implement rate limiting for uploads
