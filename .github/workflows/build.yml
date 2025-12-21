@@ -65,12 +65,12 @@ jobs:
     - name: Configure vcpkg http binary cache (Linux)
       if: runner.os != 'Windows'
       run: |
-        export VCPKG_BINARY_SOURCES="http,https://vcpkg.mikefilion.org/{triplet}/{name}/{version}/{sha},readwrite,Authorization: Bearer ${{ secrets.VCPKG_CACHE_APIKEY }}"
+        export VCPKG_BINARY_SOURCES="http,https://vcpkg.mikefilion.com/{triplet}/{name}/{version}/{sha},readwrite,Authorization: Bearer ${{ secrets.VCPKG_CACHE_APIKEY }}"
 
     - name: Configure vcpkg http binary cache (Windows)
       if: runner.os == 'Windows'
       run: |
-        set VCPKG_BINARY_SOURCES="http,https://vcpkg.mikefilion.org/{triplet}/{name}/{version}/{sha},readwrite,Authorization: Bearer ${{ secrets.VCPKG_CACHE_APIKEY }}"
+        set VCPKG_BINARY_SOURCES="http,https://vcpkg.mikefilion.com/{triplet}/{name}/{version}/{sha},readwrite,Authorization: Bearer ${{ secrets.VCPKG_CACHE_APIKEY }}"
 
     - name: Install vcpkg
       run: |
