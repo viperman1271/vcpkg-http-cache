@@ -27,7 +27,7 @@ public:
     ADD_METHOD_TO(BinaryCacheServer::GetStatus, "/status", drogon::Get);
 
     // GET method to terminate server via IPC
-    ADD_METHOD_TO(BinaryCacheServer::Kill, "/internal/kill", drogon::Get);
+    ADD_METHOD_TO(BinaryCacheServer::Kill, "/internal/kill", drogon::Get, "drogon::LocalHostFilter");
     
     METHOD_LIST_END
 
