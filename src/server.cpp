@@ -4,6 +4,8 @@
 #include <policyengine.hpp>
 
 #include <drogon/HttpResponse.h>
+#include <fmt/core.h>
+#include <fmt/chrono.h>
 
 #include <algorithm>
 #include <fstream>
@@ -506,7 +508,7 @@ nlohmann::json BinaryCacheServer::ApiKeyToJson(const ApiKey& key) const
     {
         { "description", key.GetDescription() },
         { "permission", ToString(key.GetPermission()) },
-        { "createdAt", std::chrono::system_clock::to_time_t(key.GetCreatedAt()) },
+        { "createdAt", fmt::format("{:%Y-%m-%d %H:%M:%S} UTC", key.GetCreatedAt()) },
         { "revoked", key.GetIsRevoked() }
     };
 
