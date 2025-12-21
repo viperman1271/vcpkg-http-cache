@@ -25,7 +25,7 @@ void ApiKeyFilter::doFilter(const drogon::HttpRequestPtr& req, drogon::FilterCal
     {
         resp = CreateUnauthorizedResponse("API Key is expired");
     }
-    if (req->getMethod() == drogon::HttpMethod::Get)
+    else if (req->getMethod() == drogon::HttpMethod::Get)
     {
         if ((m_RequireAuthForStatus && req->getPath() == "/status") || m_RequireAuthForRead)
         {
