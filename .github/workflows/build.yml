@@ -65,7 +65,16 @@ jobs:
     - name: Install vcpkg
       run: |
         git clone https://github.com/microsoft/vcpkg.git
+
+    - name: Bootstrap vcpkg (Linux)
+      if: runner.os != 'Windows'
+      run: |
         ./vcpkg/bootstrap-vcpkg.sh
+
+    - name: Bootstrap vcpkg (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        .\vcpkg\bootstrap-vcpkg.bat
     
     - name: Cache vcpkg
       uses: actions/cache@v4
