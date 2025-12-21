@@ -19,6 +19,7 @@ std::string PolicyEngine::CreateApiKey(const std::string& description, AccessPer
 
     std::lock_guard<std::recursive_mutex> lock(m_Mutex);
     const auto iter = m_ApiKeys.emplace(key.GetKey(), std::move(key));
+    m_PersistenceInfo.UpdateOrAddApiKey(iter.first->second);
     return iter.first->first;
 }
 
@@ -29,6 +30,7 @@ bool PolicyEngine::RevokeApiKey(const std::string& apiKey)
     if(iter != m_ApiKeys.end() && !iter->second.GetIsRevoked())
     {
         iter->second.Revoke();
+        m_PersistenceInfo.UpdateOrAddApiKey(iter->second);
         return true;
     }
 

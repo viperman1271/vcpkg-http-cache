@@ -2,6 +2,8 @@
 
 #include <accesspermission.hpp>
 
+#include <nlohmann/json.hpp>
+
 #include <chrono>
 #include <string>
 
@@ -12,6 +14,7 @@ struct ApiKey
 {
 public:
     ApiKey(const std::string& key, const std::string& desc, AccessPermission perm, std::optional<std::chrono::system_clock::time_point> expiry = std::nullopt);
+    ApiKey(const nlohmann::json& json);
 
     bool GetIsRevoked() const { return m_Revoked; }
     void Revoke() { m_Revoked = true; }
@@ -21,6 +24,9 @@ public:
     const std::string& GetDescription() const { return m_Description; }
 
     const std::optional<std::chrono::system_clock::time_point>& GetExpiry() const { return m_ExpiresAt; }
+
+    void Save(nlohmann::json& json) const;
+    void Load(const nlohmann::json& json);
 
 private:
     bool m_Revoked;
