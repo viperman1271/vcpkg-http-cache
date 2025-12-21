@@ -1,5 +1,6 @@
 #pragma once
 
+#include <accesspermission.hpp>
 #include <persistence.hpp>
 
 #include <chrono>
@@ -7,17 +8,6 @@
 #include <optional>
 #include <unordered_map>
 #include <string>
-
-/**
- * @brief Enum representing access permissions for API keys
- */
-enum class AccessPermission 
-{
-    READ,      // Read-only access (GET, HEAD)
-    WRITE,     // Write-only access (PUT)
-    READWRITE  // Full access (GET, HEAD, PUT)
-};
-
 /**
  * @brief Structure representing an API key with metadata
  */
@@ -131,13 +121,3 @@ private:
     PersistenceInfo& m_PersistenceInfo;
     mutable std::recursive_mutex m_Mutex;
 };
-
-/**
- * @brief Convert AccessPermission to string
- */
-std::string ToString(AccessPermission perm);
-
-/**
- * @brief Convert string to AccessPermission
- */
-std::optional<AccessPermission> FromString(const std::string& str);
