@@ -193,13 +193,13 @@ To use this server as a binary cache for vcpkg, configure vcpkg with:
 
 ```bash
 # Set binary cache to use your server
-vcpkg install <package> --binarysource="http,http://localhost:8888/{triplet}/{name}/{version}/{sha},readwrite,Authorization: Bearer vcpkg_28ea09345eef27c3c93759e530516427"
+vcpkg install <package> --binarysource="http,http://localhost/{triplet}/{name}/{version}/{sha},readwrite,Authorization: Bearer vcpkg_28ea09345eef27c3c93759e530516427"
 ```
 
 Or set it in your environment:
 
 ```bash
-export VCPKG_BINARY_SOURCES="http,http://localhost:8888/{triplet}/{name}/{version}/{sha},readwrite,Authorization: Bearer vcpkg_28ea09345eef27c3c93759e530516427" # Linux
+export VCPKG_BINARY_SOURCES="http,http://localhost/{triplet}/{name}/{version}/{sha},readwrite,Authorization: Bearer vcpkg_28ea09345eef27c3c93759e530516427" # Linux
 ```
 ## Performance Considerations
 
