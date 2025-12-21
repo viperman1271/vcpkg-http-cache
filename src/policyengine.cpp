@@ -2,16 +2,6 @@
 
 #include <random>
 
-ApiKey::ApiKey(const std::string& m_Key, const std::string& description, AccessPermission permission, std::optional<std::chrono::system_clock::time_point> expiry)
-    : m_Key(m_Key)
-    , m_Description(description)
-    , m_Permission(permission)
-    , m_CreatedAt(std::chrono::system_clock::now())
-    , m_ExpiresAt(expiry)
-    , m_Revoked(false)
-{
-}
-
 PolicyEngine::PolicyEngine(PersistenceInfo& persistenceInfo)
     : m_PersistenceInfo(persistenceInfo)
 {
@@ -159,40 +149,4 @@ bool PolicyEngine::IsMethodAllowed(AccessPermission permission, const std::strin
     }
 
     return false;
-}
-
-std::string ToString(AccessPermission perm)
-{
-    switch (perm) 
-    {
-    case AccessPermission::READ: 
-        return "read";
-    case AccessPermission::WRITE: 
-        return "write";
-    case AccessPermission::READWRITE: 
-        return "readwrite";
-    default: 
-        return "unknown";
-    }
-}
-
-std::optional<AccessPermission> FromString(const std::string& str)
-{
-    std::string lower = str;
-    std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
-
-    if (lower == "read")
-    {
-        return AccessPermission::READ;
-    }
-    if (lower == "write")
-    {
-        return AccessPermission::WRITE;
-    }
-    if (lower == "readwrite" || lower == "read-write")
-    {
-        return AccessPermission::READWRITE;
-    }
-
-    return std::nullopt;
 }

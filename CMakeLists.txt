@@ -23,6 +23,8 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 source_group("" FILES
     src/accesspermission.cpp
     src/accesspermission.hpp
+    src/apikey.cpp
+    src/apikey.hpp
     src/main.cpp
     src/options.cpp
     src/options.hpp
@@ -42,6 +44,8 @@ source_group("filters" FILES
 add_executable(vcpkg-binary-cache-server
     src/accesspermission.cpp
     src/accesspermission.hpp
+    src/apikey.cpp
+    src/apikey.hpp
     src/filters/authfilter.cpp
     src/filters/authfilter.hpp
     src/main.cpp
