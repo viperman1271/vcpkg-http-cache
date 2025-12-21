@@ -23,6 +23,8 @@ BinaryCacheServer::BinaryCacheServer(const std::string& cacheDir, const std::str
 
     m_PersistenceInfo.SetPersistencePath(persistenceFile);
     m_PersistenceInfo.Load();
+
+    m_PolicyEngine->Load();
 }
 
 void BinaryCacheServer::CheckPackage(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback, const std::string& triplet, const std::string& name, const std::string& version, const std::string& sha) const 

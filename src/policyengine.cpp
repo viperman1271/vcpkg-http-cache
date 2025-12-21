@@ -104,6 +104,16 @@ std::optional<ApiKey> PolicyEngine::GetApiKey(const std::string& apiKey) const
     return std::nullopt;
 }
 
+void PolicyEngine::Load()
+{
+    std::lock_guard<std::recursive_mutex> lock(m_Mutex);
+
+    for (const ApiKey& apiKey : m_PersistenceInfo.GetApiKeys())
+    {
+        m_ApiKeys.emplace(apiKey.GetKey(), apiKey);
+    }
+}
+
 std::string PolicyEngine::GenerateKey()
 {
     static std::random_device rd;
@@ -125,7 +135,7 @@ std::string PolicyEngine::GenerateKey()
 
 bool PolicyEngine::IsExpired(const ApiKey& key) const
 {
-    return !key.GetExpiry().has_value() || key.GetExpiry().value() > std::chrono::system_clock::now();
+    return key.GetExpiry().has_value() && key.GetExpiry().value() > std::chrono::system_clock::now();
 }
 
 bool PolicyEngine::IsExpired(const std::string& apiKey) const

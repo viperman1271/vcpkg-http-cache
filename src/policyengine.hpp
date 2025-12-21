@@ -71,6 +71,12 @@ public:
      * @return ApiKey 
      */
     std::optional<ApiKey> GetApiKey(const std::string& apiKey) const;
+
+    /**
+     * @brief Loads the necessary data from Persistence info
+     */
+    void Load();
+
 private:
     /**
      * @brief Generate a cryptographically secure random API key

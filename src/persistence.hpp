@@ -23,6 +23,7 @@ public:
     void IncreaseUploads() { ++m_Uploads; UpdateLastWrite(); }
 
     void UpdateOrAddApiKey(const ApiKey& apiKey);
+    const std::vector<ApiKey>& GetApiKeys() const { return m_ApiKeys; }
 
     void Save() const;
     void Save(nlohmann::json& json) const;
