@@ -30,6 +30,12 @@ public:
     void doFilter(const drogon::HttpRequestPtr& req, drogon::FilterCallback&& fcb, drogon::FilterChainCallback&& fecb) override;
 
 private:
+    drogon::HttpResponsePtr CreateUnauthorizedResponse(const std::string& message) const;
+    drogon::HttpResponsePtr CreateForbiddenResponse(const std::string& message) const;
+
+    std::optional<std::string> ExtractApiKey(const drogon::HttpRequestPtr& req) const;
+
+private:
     std::shared_ptr<PolicyEngine> m_PolicyEngine;
 
     const bool m_RequireAuthForRead;

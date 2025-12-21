@@ -70,13 +70,29 @@ public:
     bool RevokeApiKey(const std::string& apiKey);
 
     /**
-     * @brief Validate an API key from HTTP header
+     * @brief Validate an API key from HTTP header has appropriate permissions
      *
      * @param apiKey The API key from the request header
      * @param requestedPermission The permission requested with the API key
      * @return bool indicating if the key is valid and has appropriate permissions
      */
     bool ValidateApiKey(const std::string& apiKey, AccessPermission requestedPermission) const;
+
+    /**
+     * @brief Validate an API key from HTTP header
+     *
+     * @param apiKey The API key from the request header
+     * @return bool Indicating whether the key is valid
+     */
+    bool ValidateApiKey(const std::string& apiKey) const;
+
+    /**
+     * @brief Validate if an API key is expired
+     *
+     * @param apiKey The API key from the request header
+     * @return bool Indicating whether an API key is expired
+     */
+    bool IsExpired(const std::string& apiKey) const;
 
     /**
      * @brief Clean up expired API keys

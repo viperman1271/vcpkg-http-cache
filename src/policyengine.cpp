@@ -67,6 +67,13 @@ bool PolicyEngine::ValidateApiKey(const std::string& apiKey, AccessPermission re
     return false;
 }
 
+bool PolicyEngine::ValidateApiKey(const std::string& apiKey) const
+{
+    std::lock_guard<std::recursive_mutex> lock(m_Mutex);
+    const auto iter = m_ApiKeys.find(apiKey);
+    return iter != m_ApiKeys.end() && !iter->second.GetIsRevoked();
+}
+
 size_t PolicyEngine::CleanupExpiredKeys()
 {
     size_t removedKeys = 0;
@@ -110,6 +117,18 @@ std::string PolicyEngine::GenerateKey()
 bool PolicyEngine::IsExpired(const ApiKey& key) const
 {
     return !key.GetExpiry().has_value() || key.GetExpiry().value() > std::chrono::system_clock::now();
+}
+
+bool PolicyEngine::IsExpired(const std::string& apiKey) const
+{
+    std::lock_guard<std::recursive_mutex> lock(m_Mutex);
+    const auto iter = m_ApiKeys.find(apiKey);
+    if (iter != m_ApiKeys.end() && !iter->second.GetIsRevoked())
+    {
+        return IsExpired(iter->second);
+    }
+
+    return true;
 }
 
 bool PolicyEngine::IsMethodAllowed(AccessPermission permission, const std::string& httpMethod)
