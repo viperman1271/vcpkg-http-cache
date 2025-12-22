@@ -14,6 +14,8 @@ on:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
+    env:
+      VCPKG_BINARY_SOURCES: "http,https://vcpkg.mikefilion.com/{triplet}/{name}/{version}/{sha},readwrite,Authorization: Bearer ${{ secrets.VCPKG_CACHE_APIKEY }}"
 
     strategy:
       # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
@@ -50,6 +52,39 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Pre-validation (Linux)
+      if: runner.os != 'Windows'
+      run: |
+        # check secret was provided at workflow-eval time
+        if [ -z "${{ secrets.VCPKG_CACHE_APIKEY }}" ]; then
+          echo "::error::VCPKG_CACHE_APIKEY secret is not set"
+          exit 1
+        fi
+
+        # verify
+        if [ -z "$VCPKG_BINARY_SOURCES" ]; then
+          echo "::error::Failed to set VCPKG_BINARY_SOURCES"
+          exit 1
+        fi
+
+        echo "VCPKG_BINARY_SOURCES configured (value masked in logs)."
+
+    - name: Pre-validation (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        if (-not $env:VCPKG_CACHE_APIKEY -and -not '${{ secrets.VCPKG_CACHE_APIKEY }}') {
+          Write-Error "VCPKG_CACHE_APIKEY secret is not set"
+          exit 1
+        }
+
+        if (-not $env:VCPKG_BINARY_SOURCES) {
+          Write-Error "Failed to set VCPKG_BINARY_SOURCES"
+          exit 1
+        }
+
+        Write-Output "VCPKG_BINARY_SOURCES configured (value masked in logs)."
+
     - name: Set reusable strings
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
       id: strings
@@ -61,16 +96,6 @@ jobs:
       shell: bash
       run: |
         git submodule update --init --recursive
-
-    - name: Configure vcpkg http binary cache (Linux)
-      if: runner.os != 'Windows'
-      run: |
-        export VCPKG_BINARY_SOURCES="http,https://vcpkg.mikefilion.com/{triplet}/{name}/{version}/{sha},readwrite,Authorization: Bearer ${{ secrets.VCPKG_CACHE_APIKEY }}"
-
-    - name: Configure vcpkg http binary cache (Windows)
-      if: runner.os == 'Windows'
-      run: |
-        set VCPKG_BINARY_SOURCES="http,https://vcpkg.mikefilion.com/{triplet}/{name}/{version}/{sha},readwrite,Authorization: Bearer ${{ secrets.VCPKG_CACHE_APIKEY }}"
 
     - name: Install vcpkg
       run: |
