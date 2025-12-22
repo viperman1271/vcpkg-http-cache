@@ -68,7 +68,7 @@ void BinaryCacheServer::CheckPackage(const drogon::HttpRequestPtr& req, std::fun
 void BinaryCacheServer::GetPackage(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback, const std::string& triplet, const std::string& name, const std::string& version, const std::string& sha) const 
 {
     m_PersistenceInfo.IncreaseTotalRequests();
-    m_PersistenceInfo.GetDownloads();
+    m_PersistenceInfo.IncreaseDownloads();
 
     // Validate SHA
     if (!IsValidHash(sha)) 
@@ -139,7 +139,7 @@ void BinaryCacheServer::GetPackage(const drogon::HttpRequestPtr& req, std::funct
 void BinaryCacheServer::PutPackage(const drogon::HttpRequestPtr& req, std::function<void(const drogon::HttpResponsePtr&)>&& callback, const std::string& triplet, const std::string& name, const std::string& version, const std::string& sha) 
 {
     m_PersistenceInfo.IncreaseTotalRequests();
-    m_PersistenceInfo.GetUploads();
+    m_PersistenceInfo.IncreaseUploads();
 
     if (!IsValidHash(sha)) 
     {
