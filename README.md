@@ -172,9 +172,6 @@ Create a new API key with the given description and the specified permission
 
 **Example:**
 ```bash
-curl -X POST http://localhost/api/keys -H "Content-Type: application/json" -d `{ \"description\" : \"This is the description of the API key\", \"permission\" : \"readwrite\" }`
-```
-```powershell
 curl -X POST http://localhost/api/keys -H "Content-Type: application/json" -d "{ \"description\" : \"This is the description of the API key\", \"permission\" : \"readwrite\" }"
 ```
 
@@ -201,6 +198,9 @@ Or set it in your environment:
 ```bash
 export VCPKG_BINARY_SOURCES="http,http://localhost/{triplet}/{name}/{version}/{sha},readwrite,Authorization: Bearer vcpkg_28ea09345eef27c3c93759e530516427" # Linux
 ```
+
+The key `vcpkg_28ea09345eef27c3c93759e530516427` is used as an example, and should not be considered a valid value. It should be replaced with the API key that was generated.
+
 ## Performance Considerations
 
 - **Thread Pool**: Adjust threads based on your CPU cores
