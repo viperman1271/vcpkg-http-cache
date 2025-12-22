@@ -472,7 +472,7 @@ nlohmann::json BinaryCacheServer::GetCacheStats() const
 {
     nlohmann::json stats;
     
-    stats["service"] = "vcpkg-binary-cache-server";
+    stats["service"] = "vcpkg-http-cache";
     stats["version"] = VERSION;
     stats["cache_directory"] = m_CacheDir.string();
     

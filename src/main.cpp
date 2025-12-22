@@ -21,12 +21,12 @@ static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* use
 
 int main(int argc, char* argv[]) 
 {
-    CLI::App app{ "vcpkg-binary-cache-server" };
+    CLI::App app{ "vcpkg-http-cache" };
 
     try 
     {
         std::cout << "===========================================" << std::endl
-                    << "vcpkg Binary Cache Server (" << VERSION << ")" << std::endl
+                    << "vcpkg Binary HTTP Cache Server (" << VERSION << ")" << std::endl
                     << "===========================================" << std::endl;
         Options options;
 
