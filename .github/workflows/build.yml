@@ -232,5 +232,5 @@ jobs:
           context: ${{ github.workspace }}
           push: true
           tags: |
-            viperman1271/vcpkg-binary-cache-server:${{ steps.extract_version.outputs.version }}
-            viperman1271/vcpkg-binary-cache-server:latest
+            viperman1271/vcpkg-http-cache:${{ steps.extract_version.outputs.version }}
+            viperman1271/vcpkg-http-cache:latest

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(vcpkg-binary-cache-server)
+project(vcpkg-http-cache)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 20)
@@ -41,7 +41,7 @@ source_group("filters" FILES
     src/filters/authfilter.hpp
 )
 
-add_executable(vcpkg-binary-cache-server
+add_executable(vcpkg-http-cache
     src/accesspermission.cpp
     src/accesspermission.hpp
     src/apikey.cpp
@@ -59,12 +59,12 @@ add_executable(vcpkg-binary-cache-server
     src/server.hpp
 )
 
-target_include_directories(vcpkg-binary-cache-server PRIVATE
+target_include_directories(vcpkg-http-cache PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CURL_INCLUDE_DIRS}
 )
 
-target_link_libraries(vcpkg-binary-cache-server PUBLIC
+target_link_libraries(vcpkg-http-cache PUBLIC
     CLI11::CLI11
     CURL::libcurl
     Drogon::Drogon
