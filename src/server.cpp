@@ -2,6 +2,7 @@
 
 #include <filters/authfilter.hpp>
 #include <policyengine.hpp>
+#include <version.hpp>
 
 #include <drogon/HttpResponse.h>
 #include <fmt/core.h>
@@ -472,7 +473,7 @@ nlohmann::json BinaryCacheServer::GetCacheStats() const
     nlohmann::json stats;
     
     stats["service"] = "vcpkg-binary-cache-server";
-    stats["version"] = "1.0.0";
+    stats["version"] = VERSION;
     stats["cache_directory"] = m_CacheDir.string();
     
     // Count packages

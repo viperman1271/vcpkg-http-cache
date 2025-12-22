@@ -1,6 +1,7 @@
+#include <filters/authfilter.hpp>
 #include <options.hpp>
 #include <server.hpp>
-#include <filters/authfilter.hpp>
+#include <version.hpp>
 
 #include <CLI/CLI.hpp>
 #include <curl/curl.h>
@@ -25,7 +26,7 @@ int main(int argc, char* argv[])
     try 
     {
         std::cout << "===========================================" << std::endl
-                    << "vcpkg Binary Cache Server v1.0.0" << std::endl
+                    << "vcpkg Binary Cache Server (" << VERSION << ")" << std::endl
                     << "===========================================" << std::endl;
         Options options;
 
