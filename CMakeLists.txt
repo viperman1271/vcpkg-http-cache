@@ -34,6 +34,7 @@ source_group("" FILES
     src/policyengine.hpp
     src/server.cpp
     src/server.hpp
+    src/version.hpp
 )
 
 source_group("filters" FILES
@@ -57,6 +58,7 @@ add_executable(vcpkg-http-cache
     src/policyengine.hpp
     src/server.cpp
     src/server.hpp
+    src/version.hpp
 )
 
 target_include_directories(vcpkg-http-cache PRIVATE
