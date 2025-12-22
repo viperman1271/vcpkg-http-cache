@@ -4,11 +4,11 @@ FROM ubuntu:latest
 # Set the working directory
 WORKDIR /bin
 
-# Copy the vcpkg-binary-cache-server binary to /bin in the Docker container
-COPY /bin/vcpkg-binary-cache-server /bin/vcpkg-binary-cache-server
+# Copy the vcpkg-http-cache binary to /bin in the Docker container
+COPY /bin/vcpkg-http-cache /bin/vcpkg-http-cache
 
-# Make sure the /bin/vcpkg-binary-cache-server is executable
-RUN chmod +x /bin/vcpkg-binary-cache-server
+# Make sure the /bin/vcpkg-http-cache is executable
+RUN chmod +x /bin/vcpkg-http-cache
 
 # Install curl
 RUN apt-get update && \
@@ -16,4 +16,4 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Set default entry point for the container
-ENTRYPOINT ["/bin/vcpkg-binary-cache-server"]
+ENTRYPOINT ["/bin/vcpkg-http-cache"]
